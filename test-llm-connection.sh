@@ -12,7 +12,7 @@ if curl -f -s "http://localhost:8080/v1/models" > /dev/null 2>&1; then
     curl -s "http://localhost:8080/v1/models" | python3 -m json.tool | grep '"id"' | cut -d'"' -f4
     echo ""
     echo "Testing a simple request..."
-    
+
     # Test a simple completion
     curl -s -X POST "http://localhost:8080/v1/chat/completions" \
         -H "Content-Type: application/json" \
@@ -21,11 +21,10 @@ if curl -f -s "http://localhost:8080/v1/models" > /dev/null 2>&1; then
             "messages": [{"role": "user", "content": "Say hello"}],
             "max_tokens": 10
         }' | python3 -m json.tool
-    
+
     echo ""
     echo "✅ Connection test complete!"
 else
     echo "❌ Server is not running at http://localhost:8080"
     echo "Start it with: llama-server --hf-repo ... -ngl 99 --port 8080"
 fi
-

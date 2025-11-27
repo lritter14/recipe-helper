@@ -314,4 +314,3 @@ If you get "image not found" errors:
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
 - [Watchtower documentation](https://containrrr.dev/watchtower/)
 - [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
-

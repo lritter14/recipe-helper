@@ -25,4 +25,3 @@ echo "✅ Model pulled successfully!"
 echo ""
 echo "Verify with:"
 echo "  docker exec recipe-ingest-ollama ollama list"
-

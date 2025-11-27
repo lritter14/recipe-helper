@@ -20,10 +20,10 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from pydantic import HttpUrl, ValidationError
+from pydantic import HttpUrl, ValidationError  # noqa: E402
 
-from recipe_ingest.models.recipe import MacroNutrients, Recipe, RecipeMetadata
-from recipe_ingest.parsers.instagram import InstagramParser
+from recipe_ingest.models.recipe import MacroNutrients, Recipe, RecipeMetadata  # noqa: E402
+from recipe_ingest.parsers.instagram import InstagramParser  # noqa: E402
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -165,7 +165,11 @@ def create_reference_interactive() -> Recipe:
     # Build recipe
     try:
         url = HttpUrl(TEST_INSTAGRAM_URL) if TEST_INSTAGRAM_URL else None
-        macros = MacroNutrients(carbs=carbs, protein=protein, fat=fat) if (carbs or protein or fat) else None
+        macros = (
+            MacroNutrients(carbs=carbs, protein=protein, fat=fat)
+            if (carbs or protein or fat)
+            else None
+        )
 
         metadata = RecipeMetadata(
             title=title,
@@ -220,7 +224,7 @@ def load_and_validate_template() -> Recipe:
         print("Run this script without --from-template to create a template first")
         sys.exit(1)
 
-    with open(template_path, "r", encoding="utf-8") as f:
+    with open(template_path, encoding="utf-8") as f:
         data = json.load(f)
 
     try:
@@ -260,11 +264,8 @@ def main() -> None:
         create_reference_from_template()
         return
 
-    if args.from_template:
-        recipe = load_and_validate_template()
-    else:
-        # Default to interactive
-        recipe = create_reference_interactive()
+    # Default to interactive if not loading from template
+    recipe = load_and_validate_template() if args.from_template else create_reference_interactive()
 
     # Save reference recipe
     REFERENCE_RECIPE_DIR.mkdir(parents=True, exist_ok=True)
@@ -289,4 +290,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

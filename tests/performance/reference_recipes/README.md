@@ -60,4 +60,3 @@ The benchmark tests automatically load reference recipes and compare model outpu
 - Instructions precision/recall/F1
 - Metadata field matches
 - Overall accuracy score
-

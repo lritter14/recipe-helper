@@ -58,4 +58,3 @@ echo "  ${BASE_URL}/api/v1/recipes"
 echo ""
 echo "Example request body:"
 echo '  {"input": "https://www.instagram.com/p/...", "format": "instagram"}'
-

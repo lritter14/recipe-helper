@@ -92,4 +92,3 @@ download-models:  ## Download all LLM models configured in .env file
 		echo "Pulling model: $$model"; \
 		ollama pull $$model || echo "Failed to pull $$model"; \
 	done
-

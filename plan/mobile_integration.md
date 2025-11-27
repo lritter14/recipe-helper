@@ -112,13 +112,13 @@ class ShareViewController: UIViewController {
         var request = URLRequest(url: apiURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
+
         let body = [
             "input": url.absoluteString,
             "format": "instagram"
         ]
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-        
+
         URLSession.shared.dataTask(with: request) { data, response, error in
             // Handle response, show notification
         }.resume()
@@ -205,7 +205,7 @@ Build a web app that can be installed on mobile devices and registered as a shar
 async function handleShare() {
     const urlParams = new URLSearchParams(window.location.search);
     const instagramURL = urlParams.get('url');
-    
+
     const response = await fetch('https://<tailscale-hostname>:8000/api/v1/recipes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -214,7 +214,7 @@ async function handleShare() {
             format: 'instagram'
         })
     });
-    
+
     const result = await response.json();
     // Show success/error UI
 }

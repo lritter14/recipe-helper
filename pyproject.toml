@@ -139,4 +139,3 @@ skip_covered = false
 [tool.black]
 line-length = 100
 target-version = ["py311"]
-

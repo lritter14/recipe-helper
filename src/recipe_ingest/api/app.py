@@ -20,17 +20,18 @@ def setup_logging() -> None:
     """Configure logging for the API application."""
     log_level = os.getenv("RECIPE_INGEST_LOG_LEVEL", "INFO").upper()
     log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    
+
     logging.basicConfig(
         level=getattr(logging, log_level, logging.INFO),
         format=log_format,
         stream=sys.stdout,
         force=True,  # Override any existing configuration
     )
-    
+
     # Reduce noise from external libraries
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
+
 
 # Configure templates
 TEMPLATES_DIR = Path(__file__).parent / "templates"
@@ -64,7 +65,7 @@ def create_app() -> FastAPI:
     """
     # Configure logging before creating the app
     setup_logging()
-    
+
     app = FastAPI(
         title="Recipe Ingestion API",
         description="Automated recipe extraction and formatting service",

@@ -232,6 +232,7 @@ class TestInstagramBenchmark:
         # Optionally check if model is available in Ollama
         try:
             from recipe_ingest.llm.client import OllamaClient
+
             client = OllamaClient(base_url=ollama_endpoint, model=model)
             available_models = client.list_models()
             if model not in available_models:
@@ -578,9 +579,7 @@ class TestInstagramBenchmark:
         successful_results = [r for r in results if "error" not in r]
         if successful_results:
             # Sort by overall accuracy (descending), then by total time (ascending)
-            successful_results.sort(
-                key=lambda x: (-x["overall_accuracy"], x["total_time"])
-            )
+            successful_results.sort(key=lambda x: (-x["overall_accuracy"], x["total_time"]))
 
             for r in successful_results:
                 print(
@@ -592,7 +591,9 @@ class TestInstagramBenchmark:
             # Show failed models
             failed_results = [r for r in results if "error" in r]
             for r in failed_results:
-                print(f"{r['model']:<15} {'N/A':<12} {'N/A':<12} {'N/A':<12} {'N/A':<10} {'N/A':<10} Failed: {r['error']}")
+                print(
+                    f"{r['model']:<15} {'N/A':<12} {'N/A':<12} {'N/A':<12} {'N/A':<10} {'N/A':<10} Failed: {r['error']}"
+                )
 
             print("=" * 100)
             print(

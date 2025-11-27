@@ -300,4 +300,3 @@ If you have questions or need help, please:
 3. Open an issue on GitHub
 
 Thank you for contributing!
-

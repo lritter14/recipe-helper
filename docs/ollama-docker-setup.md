@@ -105,4 +105,3 @@ docker-compose restart recipe-api
 ## Alternative: Use Host Network Mode (Not Recommended)
 
 If the above doesn't work, you could modify docker-compose.yml to use host networking, but this conflicts with Tailscale's network mode and is not recommended.
-

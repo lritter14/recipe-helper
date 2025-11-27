@@ -59,8 +59,7 @@ class VaultWriter:
         if not overwrite and file_path.exists():
             logger.warning(f"Recipe already exists: {file_path}")
             raise FileExistsError(
-                f"Recipe '{title}' already exists at {file_path}. "
-                f"Use overwrite=True to replace it."
+                f"Recipe '{title}' already exists at {file_path}. Use overwrite=True to replace it."
             )
 
         logger.info(f"Writing recipe to: {file_path}")

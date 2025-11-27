@@ -14,7 +14,7 @@ class TestSettings:
         """Test that settings can be created with all defaults."""
         settings = Settings()
         assert settings.llm.endpoint == "http://localhost:11434"
-        assert settings.llm.model == "llama2"
+        assert settings.llm.model == "llama3.1:8b"
         assert settings.llm.timeout == 120
         assert settings.vault is None
         assert settings.log_level == "INFO"
@@ -42,7 +42,7 @@ class TestLoadSettings:
 
         try:
             settings = load_settings()
-            assert settings.llm.model == "llama2"  # Default
+            assert settings.llm.model == "llama3.1:8b"  # Default
             assert settings.vault is None
         finally:
             os.chdir(orig_dir)
@@ -83,7 +83,7 @@ class TestLoadSettings:
         settings = load_settings(config_file)
 
         # Should use defaults
-        assert settings.llm.model == "llama2"
+        assert settings.llm.model == "llama3.1:8b"
         assert settings.vault is None
 
     def test_load_settings_with_invalid_yaml(self, tmp_path: Path) -> None:
@@ -93,7 +93,7 @@ class TestLoadSettings:
 
         # Should not crash, just use defaults
         settings = load_settings(config_file)
-        assert settings.llm.model == "llama2"
+        assert settings.llm.model == "llama3.1:8b"
 
     def test_load_settings_with_partial_config(self, tmp_path: Path) -> None:
         """Test loading settings with only some fields in config file."""

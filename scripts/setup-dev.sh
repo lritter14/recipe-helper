@@ -68,4 +68,3 @@ echo "  4. Run tests: make test"
 echo "  5. Start the API server: make run-api"
 echo ""
 echo "For more information, see README.md and CONTRIBUTING.md"
-

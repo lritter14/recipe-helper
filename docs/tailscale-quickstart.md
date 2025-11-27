@@ -88,4 +88,3 @@ Once Tailscale is working:
 ## Full Documentation
 
 For detailed setup and troubleshooting, see: `docs/tailscale-setup.md`
-
