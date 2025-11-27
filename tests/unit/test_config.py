@@ -1,8 +1,6 @@
 """Unit tests for configuration management."""
 
-from pathlib import Path
-
-import yaml
+import pytest
 
 from recipe_ingest.config import Settings, load_settings
 
@@ -14,7 +12,7 @@ class TestSettings:
         """Test that settings can be created with all defaults."""
         settings = Settings()
         assert settings.llm.endpoint == "http://localhost:11434"
-        assert settings.llm.model == "llama2"
+        assert settings.llm.model == "llama3.1:8b"
         assert settings.llm.timeout == 120
         assert settings.vault is None
         assert settings.log_level == "INFO"
@@ -32,106 +30,64 @@ class TestSettings:
 class TestLoadSettings:
     """Tests for load_settings function."""
 
-    def test_load_settings_without_config_file(self, tmp_path: Path) -> None:
-        """Test loading settings when no config file exists."""
-        # Change to a directory with no config
-        import os
+    def test_load_settings_with_defaults(self) -> None:
+        """Test loading settings with all defaults."""
+        settings = load_settings()
+        assert settings.llm.model == "llama3.1:8b"  # Default
+        assert settings.llm.endpoint == "http://localhost:11434"
+        assert settings.llm.timeout == 120
+        assert settings.vault is None
+        assert settings.log_level == "INFO"
 
-        orig_dir = Path.cwd()
-        os.chdir(tmp_path)
+    def test_load_settings_from_env_vars(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test loading settings from environment variables."""
+        monkeypatch.setenv("RECIPE_INGEST_LLM_ENDPOINT", "http://test:11434")
+        monkeypatch.setenv("RECIPE_INGEST_LLM_MODEL", "test-model")
+        monkeypatch.setenv("RECIPE_INGEST_LLM_TIMEOUT", "90")
+        monkeypatch.setenv("RECIPE_INGEST_VAULT_PATH", "/test/vault")
+        monkeypatch.setenv("RECIPE_INGEST_VAULT_RECIPES_DIR", "recipes")
+        monkeypatch.setenv("RECIPE_INGEST_LOG_LEVEL", "DEBUG")
 
-        try:
-            settings = load_settings()
-            assert settings.llm.model == "llama2"  # Default
-            assert settings.vault is None
-        finally:
-            os.chdir(orig_dir)
+        settings = load_settings()
 
-    def test_load_settings_from_config_file(self, tmp_path: Path) -> None:
-        """Test loading settings from a config file."""
-        # Create config file
-        config_dir = tmp_path / "config"
-        config_dir.mkdir()
-        config_file = config_dir / "config.yaml"
-
-        config_data = {
-            "llm": {"endpoint": "http://test:11434", "model": "test-model", "timeout": 90},
-            "vault": {"path": str(tmp_path / "vault"), "recipes_dir": "recipes"},
-            "log_level": "DEBUG",
-        }
-
-        with open(config_file, "w") as f:
-            yaml.dump(config_data, f)
-
-        # Load settings
-        settings = load_settings(config_file)
-
-        # Verify settings loaded from file
         assert settings.llm.endpoint == "http://test:11434"
         assert settings.llm.model == "test-model"
         assert settings.llm.timeout == 90
         assert settings.vault is not None
-        assert str(settings.vault.path) == str(tmp_path / "vault")
+        assert str(settings.vault.path) == "/test/vault"
         assert settings.vault.recipes_dir == "recipes"
         assert settings.log_level == "DEBUG"
 
-    def test_load_settings_with_empty_config_file(self, tmp_path: Path) -> None:
-        """Test loading settings when config file is empty."""
-        config_file = tmp_path / "config.yaml"
-        config_file.write_text("")
+    def test_load_settings_with_llm_base_url(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that LLM_BASE_URL environment variable is supported."""
+        monkeypatch.setenv("LLM_BASE_URL", "http://ollama:11434")
+        monkeypatch.setenv("RECIPE_INGEST_LLM_MODEL", "test-model")
 
-        settings = load_settings(config_file)
+        settings = load_settings()
 
-        # Should use defaults
-        assert settings.llm.model == "llama2"
-        assert settings.vault is None
+        assert settings.llm.endpoint == "http://ollama:11434"
+        assert settings.llm.model == "test-model"
 
-    def test_load_settings_with_invalid_yaml(self, tmp_path: Path) -> None:
-        """Test loading settings when config file has invalid YAML."""
-        config_file = tmp_path / "config.yaml"
-        config_file.write_text("invalid: yaml: content: [")
+    def test_load_settings_with_partial_env_vars(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test loading settings with only some environment variables set."""
+        monkeypatch.setenv("RECIPE_INGEST_LLM_MODEL", "custom-model")
 
-        # Should not crash, just use defaults
-        settings = load_settings(config_file)
-        assert settings.llm.model == "llama2"
+        settings = load_settings()
 
-    def test_load_settings_with_partial_config(self, tmp_path: Path) -> None:
-        """Test loading settings with only some fields in config file."""
-        config_file = tmp_path / "config.yaml"
-        config_data = {
-            "llm": {"model": "custom-model"},
-            # Vault not specified
-        }
-
-        with open(config_file, "w") as f:
-            yaml.dump(config_data, f)
-
-        settings = load_settings(config_file)
-
-        # Model from config, endpoint from default
+        # Model from env, endpoint from default
         assert settings.llm.model == "custom-model"
         assert settings.llm.endpoint == "http://localhost:11434"
         assert settings.vault is None
 
-    def test_load_settings_searches_standard_locations(self, tmp_path: Path) -> None:
-        """Test that load_settings checks standard config locations."""
-        import os
+    def test_load_settings_env_vars_override_defaults(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Test that environment variables properly override defaults."""
+        monkeypatch.setenv("RECIPE_INGEST_LLM_ENDPOINT", "http://custom:11434")
+        monkeypatch.setenv("RECIPE_INGEST_LLM_TIMEOUT", "60")
 
-        # Create config in current directory
-        config_dir = tmp_path / "config"
-        config_dir.mkdir()
-        config_file = config_dir / "config.yaml"
+        settings = load_settings()
 
-        config_data = {"llm": {"model": "found-model"}}
-        with open(config_file, "w") as f:
-            yaml.dump(config_data, f)
-
-        # Change to tmp_path so it finds config/config.yaml
-        orig_dir = Path.cwd()
-        os.chdir(tmp_path)
-
-        try:
-            settings = load_settings()
-            assert settings.llm.model == "found-model"
-        finally:
-            os.chdir(orig_dir)
+        assert settings.llm.endpoint == "http://custom:11434"
+        assert settings.llm.timeout == 60
+        assert settings.llm.model == "llama3.1:8b"  # Still default

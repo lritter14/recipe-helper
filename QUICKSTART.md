@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get up and running with the Recipe Ingestion Pipeline in 5 minutes.
+Get up and running with Recipe Helper in 5 minutes.
 
 ## Prerequisites Checklist
 
@@ -20,7 +20,7 @@ Before you begin, ensure you have:
 # Clone the repository
 cd /path/to/your/projects
 git clone <repository-url>
-cd recipe-pipeline
+cd recipe-helper
 
 # Run automated setup script
 ./scripts/setup-dev.sh
@@ -33,14 +33,24 @@ The script will:
 - Set up pre-commit hooks
 - Create configuration files from templates
 
-### 2. Configure Vault Path (1 minute)
+### 2. Configure Environment Variables (1 minute)
 
-Edit `config/config.yaml` and set your Obsidian vault path:
+Set your Obsidian vault path and LLM settings:
 
-```yaml
-vault:
-  path: "/Users/your-name/Documents/ObsidianVault"
-  recipes_dir: "personal/recipes"
+```bash
+export RECIPE_INGEST_VAULT_PATH="/Users/your-name/Documents/ObsidianVault"
+export RECIPE_INGEST_VAULT_RECIPES_DIR="personal/recipes"
+export RECIPE_INGEST_LLM_ENDPOINT="http://localhost:11434"
+export RECIPE_INGEST_LLM_MODEL="llama3.1:8b"
+```
+
+Or create a `.env` file in the project root (if using python-dotenv):
+
+```bash
+RECIPE_INGEST_VAULT_PATH=/Users/your-name/Documents/ObsidianVault
+RECIPE_INGEST_VAULT_RECIPES_DIR=personal/recipes
+RECIPE_INGEST_LLM_ENDPOINT=http://localhost:11434
+RECIPE_INGEST_LLM_MODEL=llama3.1:8b
 ```
 
 ### 3. Verify LLM Server (30 seconds)
@@ -185,9 +195,7 @@ Now that your environment is set up, you can:
    - Unit tests in `tests/unit/`
    - Integration tests in `tests/integration/`
 
-3. **Follow the milestones** in `intro.md`
-
-4. **Read the documentation**:
+3. **Read the documentation**:
    - `README.md` - User documentation
    - `CONTRIBUTING.md` - Development guidelines
    - `SETUP.md` - Detailed setup information
@@ -262,7 +270,6 @@ make clean                        # Remove generated files
 
 - Check `README.md` for detailed documentation
 - Read `CONTRIBUTING.md` for development guidelines
-- Review `intro.md` for project context and goals
 - Check `SETUP.md` for architecture overview
 
 ---

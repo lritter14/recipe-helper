@@ -1,6 +1,6 @@
 # Project Setup Summary
 
-This document provides an overview of the Recipe Ingestion Pipeline project structure and setup.
+This document provides an overview of the Recipe Helper project structure and setup.
 
 ## Project Overview
 
@@ -20,7 +20,7 @@ A Python-based system for automated recipe extraction and formatting from multip
 ## Project Structure
 
 ```text
-recipe-pipeline/
+recipe-helper/
 ├── src/recipe_ingest/           # Main application package
 │   ├── api/                     # FastAPI web interface
 │   │   ├── app.py              # Application factory
@@ -44,8 +44,7 @@ recipe-pipeline/
 │   │   └── test_models.py
 │   └── integration/             # Integration tests
 │       └── test_api.py
-├── config/                      # Configuration files
-│   └── config.yaml.example     # Example configuration
+├── config/                      # Configuration files (deprecated - use env vars)
 ├── scripts/                     # Utility scripts
 │   ├── setup-dev.sh            # Development setup
 │   └── check-llm.sh             # LLM server connectivity check
@@ -210,7 +209,7 @@ make clean       # Remove generated files
 
 ### 🚧 To Be Implemented
 
-Per `intro.md` milestones:
+Milestones:
 
 - [ ] **M1**: CLI MVP with LLM extraction
 - [ ] **M2**: Web UI implementation
@@ -224,7 +223,7 @@ Per `intro.md` milestones:
 
 1. **Set up development environment**:
    - Run `./scripts/setup-dev.sh`
-   - Configure `config/config.yaml` with vault path
+   - Set environment variables (RECIPE_INGEST_VAULT_PATH, etc.)
    - Set up `.env` for Docker deployment
 
 2. **Verify dependencies**:
@@ -257,12 +256,10 @@ Per `intro.md` milestones:
 
 ## References
 
-- Project specification: `intro.md`
 - User documentation: `README.md`
 - Developer guide: `CONTRIBUTING.md`
 - Dependencies: `pyproject.toml`
-- Configuration example: `config/config.yaml.example`
 
 ---
 
-**Note**: This is a greenfield project with a solid foundation. All core modules have stub implementations ready for development. Follow the milestones in `intro.md` for implementation priority.
+**Note**: This is a greenfield project with a solid foundation. All core modules have stub implementations ready for development.

@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 class OllamaClient:
     """Client for interacting with Ollama local LLM."""
 
-    def __init__(self, base_url: str = "http://localhost:11434", model: str = "llama3.1:8b") -> None:
+    def __init__(
+        self, base_url: str = "http://localhost:11434", model: str = "llama3.1:8b"
+    ) -> None:
         """Initialize the Ollama client.
 
         Args:
@@ -67,7 +69,11 @@ class OllamaClient:
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(f"Full prompt:\n{payload['prompt']}")
         else:
-            prompt_preview = payload["prompt"][:500] + "..." if len(payload["prompt"]) > 500 else payload["prompt"]
+            prompt_preview = (
+                payload["prompt"][:500] + "..."
+                if len(payload["prompt"]) > 500
+                else payload["prompt"]
+            )
             logger.debug(f"Prompt preview: {prompt_preview}")
 
         try:
@@ -83,18 +89,20 @@ class OllamaClient:
 
             # Log raw response
             if logger.isEnabledFor(logging.DEBUG):
-                logger.debug(f"Raw response from Ollama (length: {len(response_text)}):\n{response_text}")
+                logger.debug(
+                    f"Raw response from Ollama (length: {len(response_text)}):\n{response_text}"
+                )
             else:
-                response_preview = response_text[:500] + "..." if len(response_text) > 500 else response_text
+                response_preview = (
+                    response_text[:500] + "..." if len(response_text) > 500 else response_text
+                )
                 logger.debug(f"Raw response preview: {response_preview}")
 
             # Parse JSON response
             if format_json:
                 try:
                     parsed: dict[str, Any] = json.loads(response_text)
-                    logger.info(
-                        f"Successfully parsed JSON response. Keys: {list(parsed.keys())}"
-                    )
+                    logger.info(f"Successfully parsed JSON response. Keys: {list(parsed.keys())}")
                     logger.debug(f"Parsed response: {json.dumps(parsed, indent=2)[:1000]}")
                     return parsed
                 except json.JSONDecodeError as e:
@@ -138,8 +146,11 @@ class OllamaClient:
                 return True
             except Exception as e:
                 if attempt < retries - 1:
-                    logger.debug(f"Ollama health check attempt {attempt + 1}/{retries} failed: {e}, retrying in {delay}s...")
+                    logger.debug(
+                        f"Ollama health check attempt {attempt + 1}/{retries} failed: {e}, retrying in {delay}s..."
+                    )
                     import time
+
                     time.sleep(delay)
                 else:
                     logger.warning(f"Ollama health check failed after {retries} attempts: {e}")

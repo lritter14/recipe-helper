@@ -98,7 +98,7 @@ class RecipeExtractor:
         if original_length != processed_length:
             logger.info(
                 f"Text preprocessing: {original_length} -> {processed_length} chars "
-                f"({(1 - processed_length/original_length)*100:.1f}% reduction)"
+                f"({(1 - processed_length / original_length) * 100:.1f}% reduction)"
             )
 
         # Create extraction prompt
@@ -439,8 +439,18 @@ Return JSON only."""
             result["instructions"] = instructions
 
         # Preserve any other fields that might be in the response
-        for key in ["notes", "calories_per_serving", "carbs_grams", "protein_grams", "fat_grams",
-                    "prep_time", "cook_time", "cuisine", "main_ingredient", "servings"]:
+        for key in [
+            "notes",
+            "calories_per_serving",
+            "carbs_grams",
+            "protein_grams",
+            "fat_grams",
+            "prep_time",
+            "cook_time",
+            "cuisine",
+            "main_ingredient",
+            "servings",
+        ]:
             if key in schema_response and schema_response[key] is not None:
                 result[key] = schema_response[key]
 
@@ -464,9 +474,25 @@ Return JSON only."""
         first_line = lines[0].strip()
 
         # If first line is short (less than 100 chars) and doesn't start with common recipe words
-        if (len(first_line) < 100 and first_line and
-                not first_line.lower().startswith(("ingredients", "instructions", "directions",
-                                                   "prep", "cook", "serves", "makes", "-", "*", "1.", "2."))):
+        if (
+            len(first_line) < 100
+            and first_line
+            and not first_line.lower().startswith(
+                (
+                    "ingredients",
+                    "instructions",
+                    "directions",
+                    "prep",
+                    "cook",
+                    "serves",
+                    "makes",
+                    "-",
+                    "*",
+                    "1.",
+                    "2.",
+                )
+            )
+        ):
             return first_line
 
         # 2. Look for patterns like "Recipe: Title" or "Title Recipe"
@@ -529,7 +555,9 @@ Return JSON only."""
             if not line or len(line) > 100:  # Skip very long lines
                 continue
             # Check if line looks like an ingredient (has quantity words or common patterns)
-            if re.search(r"\d+\s*(cup|tbsp|tsp|oz|lb|g|kg|ml|l|gram|pound|ounce)", line, re.IGNORECASE):
+            if re.search(
+                r"\d+\s*(cup|tbsp|tsp|oz|lb|g|kg|ml|l|gram|pound|ounce)", line, re.IGNORECASE
+            ):
                 # Remove bullet points
                 line = re.sub(r"^[-•*]\s*", "", line)
                 if line:

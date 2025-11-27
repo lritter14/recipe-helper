@@ -46,4 +46,3 @@ echo "Service is now accessible via Tailscale network"
 
 # Keep the container running
 tail -f /dev/null
-

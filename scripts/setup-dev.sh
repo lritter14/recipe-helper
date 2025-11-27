@@ -34,21 +34,8 @@ pip install --quiet --upgrade pip
 echo "📥 Installing package with development dependencies..."
 pip install --quiet -e ".[dev]"
 
-# Install pre-commit hooks
-echo "🪝 Installing pre-commit hooks..."
-pre-commit install
-
-# Create config directory if it doesn't exist
-if [ ! -d "config" ]; then
-    mkdir -p config
-fi
-
-# Copy example config if config doesn't exist
-if [ ! -f "config/config.yaml" ] && [ -f "config/config.yaml.example" ]; then
-    echo "⚙️  Creating config from example..."
-    cp config/config.yaml.example config/config.yaml
-    echo "⚠️  Please edit config/config.yaml with your settings"
-fi
+# Note: Configuration is now done via environment variables
+# See README.md for required environment variables
 
 # Create .env from example if it doesn't exist
 if [ ! -f ".env" ] && [ -f ".env.example" ]; then
@@ -62,10 +49,9 @@ echo "✅ Development environment setup complete!"
 echo ""
 echo "Next steps:"
 echo "  1. Activate the virtual environment: source venv/bin/activate"
-echo "  2. Edit config/config.yaml with your Obsidian vault path"
+echo "  2. Set environment variables (RECIPE_INGEST_VAULT_PATH, etc.)"
 echo "  3. Edit .env with your Tailscale auth key (for Docker deployment)"
 echo "  4. Run tests: make test"
 echo "  5. Start the API server: make run-api"
 echo ""
 echo "For more information, see README.md and CONTRIBUTING.md"
-

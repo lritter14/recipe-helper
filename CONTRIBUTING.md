@@ -1,4 +1,4 @@
-# Contributing to Recipe Ingestion Pipeline
+# Contributing to Recipe Helper
 
 Thank you for your interest in contributing! This document provides guidelines and instructions for contributing to the project.
 
@@ -17,7 +17,7 @@ Clone the repository:
 
 ```bash
 git clone <repository-url>
-cd recipe-pipeline
+cd recipe-helper
 ```
 
 Create a virtual environment:
@@ -296,8 +296,7 @@ git commit -m "Your message"
 If you have questions or need help, please:
 
 1. Check the README.md
-2. Review the project documentation in `intro.md`
+2. Review the project documentation
 3. Open an issue on GitHub
 
 Thank you for contributing!
-

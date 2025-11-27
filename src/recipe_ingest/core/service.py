@@ -86,8 +86,7 @@ def _compare_ingredients(ingredients1: list[str], ingredients2: list[str]) -> bo
 
     match = normalized1 == normalized2
     logger.debug(
-        f"Ingredient comparison: {len(ingredients1)} vs {len(ingredients2)} items, "
-        f"match={match}"
+        f"Ingredient comparison: {len(ingredients1)} vs {len(ingredients2)} items, match={match}"
     )
     if not match:
         logger.debug(f"Recipe 1 ingredients: {normalized1}")

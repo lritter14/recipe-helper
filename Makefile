@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test lint format type-check clean docker-build docker-up docker-down git-init pre-commit-install pre-commit-run git-status
+.PHONY: help install install-dev test lint format type-check clean docker-build docker-up docker-down git-init git-status build run-container
 
 help:  ## Show this help message
 	@echo "Usage: make [target]"
@@ -11,7 +11,6 @@ install:  ## Install package
 
 install-dev:  ## Install package with development dependencies
 	pip install -e ".[dev]"
-	pre-commit install
 
 git-init:  ## Initialize git repository (if not already initialized)
 	@if [ ! -d .git ]; then \
@@ -21,12 +20,6 @@ git-init:  ## Initialize git repository (if not already initialized)
 	else \
 		echo "Git repository already initialized."; \
 	fi
-
-pre-commit-install:  ## Install pre-commit hooks
-	pre-commit install
-
-pre-commit-run:  ## Run pre-commit hooks on all files
-	pre-commit run --all-files
 
 git-status:  ## Show git status
 	git status
@@ -60,23 +53,36 @@ clean:  ## Clean up generated files
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 
-docker-build:  ## Build Docker image
-	docker-compose build
+build:  ## Build Docker image locally
+	docker build -t recipe-ingest:local -f Dockerfile .
+
+run-container:  ## Run container using docker compose (requires build first, starts recipe-api and dependencies)
+	@if ! docker image inspect recipe-ingest:local >/dev/null 2>&1; then \
+		echo "Error: Image recipe-ingest:local not found. Run 'make build' first."; \
+		exit 1; \
+	fi
+	@echo "Starting recipe-api container and dependencies..."
+	DOCKER_IMAGE=recipe-ingest:local docker compose up -d recipe-api ollama
+	@echo "Container started! API available at http://10.0.0.122:8100"
+	@echo "View logs with: docker compose logs -f recipe-api"
+
+docker-build:  ## Build Docker image (alias for build)
+	$(MAKE) build
 
 docker-up:  ## Start services with Docker Compose
-	docker-compose up -d
+	docker compose up -d
 
 docker-restart:  ## Restart services
-	docker-compose restart
+	docker compose restart
 
 docker-down:  ## Stop services
-	docker-compose down
+	docker compose down
 
 docker-logs:  ## View service logs
-	docker-compose logs -f
+	docker compose logs -f
 
 run-api:  ## Run API server locally
-	uvicorn recipe_ingest.api.app:create_app --factory --reload --host 0.0.0.0 --port 8000
+	uvicorn recipe_ingest.api.app:create_app --factory --reload --host 0.0.0.0 --port 8100
 
 run-cli:  ## Run CLI (example)
 	recipe-ingest --help
@@ -92,4 +98,3 @@ download-models:  ## Download all LLM models configured in .env file
 		echo "Pulling model: $$model"; \
 		ollama pull $$model || echo "Failed to pull $$model"; \
 	done
-

@@ -123,7 +123,7 @@ Set these environment variables in your `.env` file or shell:
 
 ```bash
 # Docker image to use (defaults to ghcr.io if not set)
-DOCKER_IMAGE=ghcr.io/your-username/recipe-pipeline/recipe-ingest:latest
+DOCKER_IMAGE=ghcr.io/your-username/recipe-helper/recipe-ingest:latest
 
 # GitHub username (for default image path)
 GITHUB_USERNAME=your-username
@@ -283,7 +283,7 @@ pre-commit install
 
 3. Check registry authentication:
    ```bash
-   docker pull ghcr.io/your-username/recipe-pipeline/recipe-ingest:latest
+   docker pull ghcr.io/your-username/recipe-helper/recipe-ingest:latest
    ```
 
 4. Verify image exists in registry:
@@ -314,4 +314,3 @@ If you get "image not found" errors:
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
 - [Watchtower documentation](https://containrrr.dev/watchtower/)
 - [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
-

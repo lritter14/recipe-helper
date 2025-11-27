@@ -76,8 +76,8 @@ class TestRecipeExtractor:
         # Verify LLM was called twice
         assert mock_client.generate.call_count == 2
 
-    def test_extract_missing_required_field_raises_error(self, mocker: MockerFixture) -> None:
-        """Test that missing required fields raise ValueError."""
+    def test_extract_missing_required_field_uses_fallback(self, mocker: MockerFixture) -> None:
+        """Test that missing required fields use fallback logic instead of raising error."""
         mock_client = mocker.Mock(spec=OllamaClient)
         mock_client.generate.return_value = {
             "title": "Test",
@@ -85,8 +85,13 @@ class TestRecipeExtractor:
         }
 
         extractor = RecipeExtractor(llm_client=mock_client)
-        with pytest.raises(ValueError, match="Failed to extract"):
-            extractor.extract("Some text")
+        recipe = extractor.extract("Some text")
+
+        # Should create recipe with empty lists as fallback
+        assert isinstance(recipe, Recipe)
+        assert recipe.metadata.title == "Test"
+        assert recipe.ingredients == []  # Fallback to empty list
+        assert recipe.instructions == []  # Fallback to empty list
 
     def test_calculate_nutrition_returns_defaults_on_error(self, mocker: MockerFixture) -> None:
         """Test that nutrition calculation returns defaults if LLM fails."""

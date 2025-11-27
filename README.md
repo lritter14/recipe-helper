@@ -1,4 +1,4 @@
-# Recipe Ingestion Pipeline
+# Recipe Helper
 
 Automated recipe extraction and formatting for Obsidian vault. Extract recipes from unstructured text, Instagram posts, or URLs and automatically format them into your Obsidian vault.
 
@@ -28,7 +28,7 @@ Clone the repository and install dependencies:
 
 ```bash
 git clone <repository-url>
-cd recipe-pipeline
+cd recipe-helper
 pip install -e ".[dev]"
 ```
 
@@ -144,36 +144,39 @@ mypy src/
 
 ## Configuration
 
-### Config File
-
-Create `~/.config/recipe-ingest/config.yaml`:
-
-```yaml
-llm:
-  endpoint: "http://localhost:8080"
-  model: "qwen"
-  timeout: 120
-
-vault:
-  path: "/path/to/obsidian/vault"
-  recipes_dir: "personal/recipes"
-
-log_level: "INFO"
-```
+Configuration is managed via environment variables. All settings use the `RECIPE_INGEST_` prefix.
 
 ### Environment Variables
 
-Configuration can also be set via environment variables:
+- `RECIPE_INGEST_LLM_ENDPOINT`: LLM server endpoint URL (default: `http://localhost:11434`)
+- `RECIPE_INGEST_LLM_MODEL`: Model name (default: `llama3.1:8b`)
+- `RECIPE_INGEST_LLM_TIMEOUT`: Request timeout in seconds (default: `120`)
+- `RECIPE_INGEST_VAULT_PATH`: Path to Obsidian vault root (required)
+- `RECIPE_INGEST_VAULT_RECIPES_DIR`: Relative path to recipes directory (default: `personal/recipes`)
+- `RECIPE_INGEST_LOG_LEVEL`: Logging level (default: `INFO`)
 
-- `RECIPE_INGEST_LLM__ENDPOINT`: LLM server endpoint URL
-- `RECIPE_INGEST_LLM__MODEL`: Model name
-- `RECIPE_INGEST_VAULT__PATH`: Vault path
-- `RECIPE_INGEST_LOG_LEVEL`: Logging level
+### Alternative LLM Configuration
+
+For convenience, you can also use `LLM_BASE_URL` instead of `RECIPE_INGEST_LLM_ENDPOINT`:
+
+```bash
+export LLM_BASE_URL="http://ollama:11434"
+```
+
+### Example Configuration
+
+```bash
+export RECIPE_INGEST_LLM_ENDPOINT="http://localhost:11434"
+export RECIPE_INGEST_LLM_MODEL="llama3.1:8b"
+export RECIPE_INGEST_VAULT_PATH="/path/to/obsidian/vault"
+export RECIPE_INGEST_VAULT_RECIPES_DIR="personal/recipes"
+export RECIPE_INGEST_LOG_LEVEL="INFO"
+```
 
 ## Project Structure
 
 ```text
-recipe-pipeline/
+recipe-helper/
 ├── src/recipe_ingest/       # Main application package
 │   ├── api/                 # FastAPI web interface
 │   ├── core/                # Core processing logic
@@ -192,8 +195,6 @@ recipe-pipeline/
 ```
 
 ## Roadmap
-
-See `intro.md` for detailed project plan and milestones.
 
 - [x] Project setup and structure
 - [ ] M1: CLI MVP with unstructured text

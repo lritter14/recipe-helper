@@ -59,4 +59,3 @@ fi
 echo ""
 echo "💡 Use one of these URLs in your iOS Shortcut"
 echo "   (Hostname is preferred, but IP works if hostname doesn't resolve)"
-

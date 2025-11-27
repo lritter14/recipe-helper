@@ -39,7 +39,6 @@ dev = [
     "ruff>=0.1.0",
     "mypy>=1.8.0",
     "black>=23.12.0",
-    "pre-commit>=3.6.0",
     "types-requests>=2.31.0",
     "types-PyYAML>=6.0.12",
 ]
@@ -49,6 +48,9 @@ recipe-ingest = "recipe_ingest.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+recipe_ingest = ["api/templates/*.html"]
 
 [tool.ruff]
 line-length = 100
@@ -117,12 +119,16 @@ markers = [
     "slow: Slow tests that require external services",
     "performance: Performance and benchmark tests",
 ]
+filterwarnings = [
+    "ignore:Module.*was previously imported, but not measured",
+]
 
 [tool.coverage.run]
 source = ["src"]
 omit = ["*/tests/*", "*/__pycache__/*"]
 parallel = true
 concurrency = ["thread", "multiprocessing"]
+branch = true
 
 [tool.coverage.report]
 exclude_lines = [
@@ -139,4 +145,3 @@ skip_covered = false
 [tool.black]
 line-length = 100
 target-version = ["py311"]
-

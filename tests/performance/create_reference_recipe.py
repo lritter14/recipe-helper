@@ -9,7 +9,6 @@ Usage:
     python tests/performance/create_reference_recipe.py
 """
 
-import json
 import logging
 import os
 import sys
@@ -20,11 +19,11 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # noqa: E402
 
-from recipe_ingest.core import process_recipe
-from recipe_ingest.parsers.instagram import InstagramParser
-from tests.performance.recipe_evaluator import save_reference_recipe
+from recipe_ingest.core import process_recipe  # noqa: E402
+from recipe_ingest.parsers.instagram import InstagramParser  # noqa: E402
+from tests.performance.recipe_evaluator import save_reference_recipe  # noqa: E402
 
 # Load environment variables
 load_dotenv()
@@ -97,7 +96,9 @@ def main() -> None:
             if result.recipe.metadata.cook_time:
                 print(f"Cook Time: {result.recipe.metadata.cook_time}")
             print("=" * 80)
-            print("\nYou can now run benchmark tests to compare other models against this reference.")
+            print(
+                "\nYou can now run benchmark tests to compare other models against this reference."
+            )
 
     except Exception as e:
         logger.error(f"Failed to create reference recipe: {e}")
@@ -109,4 +110,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -1,11 +1,12 @@
 # Multi-stage build for smaller final image
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    liblzma-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy dependency files and source code needed for installation
@@ -24,6 +25,7 @@ WORKDIR /app
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed packages from builder
@@ -45,8 +47,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+    CMD curl -f http://localhost:8100/api/v1/health || exit 1
 
 # Default to running the API server
-CMD ["uvicorn", "recipe_ingest.api.app:create_app", "--host", "0.0.0.0", "--port", "8000", "--factory"]
-
+CMD ["uvicorn", "recipe_ingest.api.app:create_app", "--host", "0.0.0.0", "--port", "8100", "--factory"]

@@ -8,7 +8,12 @@ import click
 
 from recipe_ingest.config import load_settings
 from recipe_ingest.core import process_recipe
-from recipe_ingest.parsers.instagram import InstagramParser
+
+# Lazy import InstagramParser to avoid lzma dependency issues
+try:
+    from recipe_ingest.parsers.instagram import InstagramParser
+except ImportError:
+    InstagramParser = None  # type: ignore[assignment, misc]
 
 logger = logging.getLogger(__name__)
 
@@ -42,19 +47,19 @@ def setup_logging(verbose: bool = False) -> None:
     "-o",
     type=click.Path(path_type=Path),
     default=None,
-    help="Obsidian vault path (default: from config file or env)",
+    help="Obsidian vault path (default: from env RECIPE_INGEST_VAULT_PATH)",
 )
 @click.option(
     "--llm-endpoint",
     "-l",
     default=None,
-    help="Ollama endpoint URL (default: from config file or env)",
+    help="Ollama endpoint URL (default: from env RECIPE_INGEST_LLM_ENDPOINT)",
 )
 @click.option(
     "--llm-model",
     "-m",
     default=None,
-    help="Ollama model name (default: from config file or env)",
+    help="Ollama model name (default: from env RECIPE_INGEST_LLM_MODEL)",
 )
 @click.option(
     "--overwrite",
@@ -115,9 +120,11 @@ def main(
         logger.debug(f"Input text length: {len(input_text)} characters")
 
         # Check if input is an Instagram URL
-        instagram_parser = InstagramParser()
         source_url: str | None = None
-        if instagram_parser.is_instagram_url(input_text):
+        # Instagram parser not available, skip Instagram URL detection
+        instagram_parser = None if InstagramParser is None else InstagramParser()
+
+        if instagram_parser and instagram_parser.is_instagram_url(input_text):
             logger.info("Detected Instagram URL, extracting caption...")
             click.echo("📸 Detected Instagram link, extracting caption...")
             try:
@@ -142,12 +149,12 @@ def main(
         # Load configuration
         settings = load_settings()
 
-        # Determine vault path (CLI arg > config file > error)
+        # Determine vault path (CLI arg > env var > error)
         vault_path = output_dir or (settings.vault.path if settings.vault else None)
         if not vault_path:
             click.echo(
-                "Error: No vault path specified. Use --output-dir or configure in "
-                "config/config.yaml or ~/.config/recipe-ingest/config.yaml",
+                "Error: No vault path specified. Use --output-dir or set "
+                "RECIPE_INGEST_VAULT_PATH environment variable",
                 err=True,
             )
             sys.exit(1)
@@ -155,14 +162,14 @@ def main(
         vault_path = Path(vault_path)
         logger.info(f"Using vault path: {vault_path}")
 
-        # Determine LLM settings (CLI args > config file > defaults)
+        # Determine LLM settings (CLI args > env vars > defaults)
         llm_endpoint_final = llm_endpoint or settings.llm.endpoint
         llm_model_final = llm_model or settings.llm.model
 
         logger.info(f"Using LLM endpoint: {llm_endpoint_final}")
         logger.info(f"Using LLM model: {llm_model_final}")
 
-        # Determine recipes directory (from config or default)
+        # Determine recipes directory (from env var or default)
         recipes_dir = settings.vault.recipes_dir if settings.vault else "personal/recipes"
         logger.info(f"Using recipes directory: {recipes_dir}")
 

@@ -23,4 +23,3 @@ else
     echo "  3. Pull a model: ollama pull llama2"
     exit 1
 fi
-

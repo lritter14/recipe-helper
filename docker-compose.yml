@@ -1,15 +1,17 @@
 services:
   recipe-api:
     # Use image from registry (set via DOCKER_IMAGE env var or default to ghcr.io)
-    image: ${DOCKER_IMAGE:-ghcr.io/${GITHUB_USERNAME:-your-username}/recipe-pipeline/recipe-ingest:latest}
+    image: ${DOCKER_IMAGE:-ghcr.io/${GITHUB_USERNAME:-your-username}/recipe-helper/recipe-ingest:latest}
     container_name: recipe-ingest-api
     restart: unless-stopped
+    ports:
+      - "8100:8100"
     networks:
       - recipe-network
     environment:
-      - RECIPE_INGEST_LLM__ENDPOINT=http://ollama:11434
-      - RECIPE_INGEST_LLM__MODEL=llama3.1:8b
-      - RECIPE_INGEST_VAULT__PATH=/vault
+      - RECIPE_INGEST_LLM_ENDPOINT=http://ollama:11434
+      - RECIPE_INGEST_LLM_MODEL=llama3.1:8b
+      - RECIPE_INGEST_VAULT_PATH=/vault
       - RECIPE_INGEST_LOG_LEVEL=INFO
     volumes:
       - ${VAULT_PATH:-/Users/loganritter/Documents/Obsidian/Personal}:/vault
@@ -18,7 +20,7 @@ services:
       ollama:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8100/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -38,7 +40,7 @@ services:
     volumes:
       - tailscale-state:/var/lib/tailscale
       - ./scripts/start-tailscale.sh:/start-tailscale.sh:ro
-    command: ["/bin/sh", "/start-tailscale.sh", "recipe-ingest", "8000"]
+    command: ["/bin/sh", "/start-tailscale.sh", "recipe-ingest", "8100"]
     depends_on:
       recipe-api:
         condition: service_healthy
@@ -97,4 +99,3 @@ volumes:
     driver: local
   ollama-data:
     driver: local
-

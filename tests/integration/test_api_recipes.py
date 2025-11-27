@@ -262,7 +262,7 @@ class TestRecipeIngestionEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert "processing_time_ms" in data
-        assert isinstance(data["processing_time_ms"], (int, float))
+        assert isinstance(data["processing_time_ms"], int | float)
         assert data["processing_time_ms"] >= 0
 
     def test_preview_always_included(
@@ -313,7 +313,9 @@ class TestHealthCheckEndpoint:
             assert data["vault_accessible"] is True
             assert data["status"] == "healthy"
 
-    def test_health_check_with_ollama_unavailable(self, client: TestClient, temp_vault: Path) -> None:
+    def test_health_check_with_ollama_unavailable(
+        self, client: TestClient, temp_vault: Path
+    ) -> None:
         """Test health check when Ollama is unavailable."""
         with (
             patch("recipe_ingest.api.routes.load_settings") as mock_load,

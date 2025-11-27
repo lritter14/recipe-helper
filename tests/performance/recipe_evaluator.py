@@ -2,10 +2,9 @@
 
 import json
 import logging
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
-
-from difflib import SequenceMatcher
 
 from recipe_ingest.models.recipe import Recipe
 
@@ -103,11 +102,7 @@ def compare_ingredients(
     matched_count = len(matches)
     precision = matched_count / len(predicted) if predicted else 0.0
     recall = matched_count / len(reference) if reference else 0.0
-    f1 = (
-        2 * (precision * recall) / (precision + recall)
-        if (precision + recall) > 0
-        else 0.0
-    )
+    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
 
     return {
         "precision": precision,
@@ -178,11 +173,7 @@ def compare_instructions(
 
     precision = matched_count / len(predicted) if predicted else 0.0
     recall = matched_count / len(reference) if reference else 0.0
-    f1 = (
-        2 * (precision * recall) / (precision + recall)
-        if (precision + recall) > 0
-        else 0.0
-    )
+    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
 
     return {
         "precision": precision,
@@ -214,14 +205,10 @@ def evaluate_recipe(predicted: Recipe, reference: Recipe) -> dict[str, Any]:
     )
 
     # Ingredients comparison
-    metrics["ingredients"] = compare_ingredients(
-        predicted.ingredients, reference.ingredients
-    )
+    metrics["ingredients"] = compare_ingredients(predicted.ingredients, reference.ingredients)
 
     # Instructions comparison
-    metrics["instructions"] = compare_instructions(
-        predicted.instructions, reference.instructions
-    )
+    metrics["instructions"] = compare_instructions(predicted.instructions, reference.instructions)
 
     # Metadata fields
     metadata_metrics = {}
@@ -275,11 +262,9 @@ def evaluate_recipe(predicted: Recipe, reference: Recipe) -> dict[str, Any]:
 
     # Normalize metadata score
     metadata_scores = [
-        v for v in metadata_metrics.values() if v is not None and isinstance(v, (float, bool))
+        v for v in metadata_metrics.values() if v is not None and isinstance(v, float | bool)
     ]
-    metadata_score = (
-        sum(metadata_scores) / len(metadata_scores) if metadata_scores else 0.0
-    )
+    metadata_score = sum(metadata_scores) / len(metadata_scores) if metadata_scores else 0.0
     # Convert bool to float
     if metadata_metrics.get("servings_match") is not None:
         metadata_scores_bool = [
@@ -288,9 +273,7 @@ def evaluate_recipe(predicted: Recipe, reference: Recipe) -> dict[str, Any]:
             if v is not None
         ]
         metadata_score = (
-            sum(metadata_scores_bool) / len(metadata_scores_bool)
-            if metadata_scores_bool
-            else 0.0
+            sum(metadata_scores_bool) / len(metadata_scores_bool) if metadata_scores_bool else 0.0
         )
 
     overall_score = (
@@ -321,7 +304,7 @@ def load_reference_recipe(file_path: Path) -> Recipe:
     if not file_path.exists():
         raise FileNotFoundError(f"Reference recipe file not found: {file_path}")
 
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
 
     try:
@@ -343,4 +326,3 @@ def save_reference_recipe(recipe: Recipe, file_path: Path) -> None:
         json.dump(recipe.model_dump(mode="json"), f, indent=2, ensure_ascii=False)
 
     logger.info(f"Saved reference recipe to {file_path}")
-

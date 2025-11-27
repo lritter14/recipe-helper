@@ -268,7 +268,7 @@
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const formData = new FormData(form);
             const data = {
                 input: formData.get('input'),
@@ -299,7 +299,7 @@
                     lastPreviewResult = result;
 
                     showMessage(
-                        result.recipe_path 
+                        result.recipe_path
                             ? `Recipe saved successfully! Path: ${result.recipe_path}`
                             : 'Recipe preview generated successfully!',
                         'success'
@@ -397,4 +397,3 @@
     </script>
 </body>
 </html>
-

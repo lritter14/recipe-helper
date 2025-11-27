@@ -13,7 +13,12 @@ from pydantic import BaseModel, Field
 from recipe_ingest.config import load_settings
 from recipe_ingest.core import process_recipe
 from recipe_ingest.llm import OllamaClient
-from recipe_ingest.parsers.instagram import InstagramParser
+
+# Lazy import InstagramParser to avoid lzma dependency issues in test environments
+try:
+    from recipe_ingest.parsers.instagram import InstagramParser
+except ImportError:
+    InstagramParser = None  # type: ignore[assignment, misc]
 
 logger = logging.getLogger(__name__)
 
@@ -111,13 +116,24 @@ async def ingest_recipe(request: RecipeRequest) -> RecipeResponse:
         )
 
         # Check if input is an Instagram URL
-        instagram_parser = InstagramParser()
         source_url: str | None = None
         input_text = request.input
 
         # Auto-detect Instagram URLs if format is "text" or explicitly handle "instagram" format
+        if InstagramParser is None:
+            if request.format == "instagram":
+                raise HTTPException(
+                    status_code=503,
+                    detail="Instagram parser is not available. Please install required dependencies.",
+                )
+            instagram_parser = None
+        else:
+            instagram_parser = InstagramParser()
+
         if request.format == "instagram" or (
-            request.format == "text" and instagram_parser.is_instagram_url(request.input)
+            instagram_parser
+            and request.format == "text"
+            and instagram_parser.is_instagram_url(request.input)
         ):
             logger.info("Detected Instagram URL, extracting caption...")
             try:
@@ -274,4 +290,4 @@ async def root(request: Request) -> HTMLResponse:
     Returns:
         HTML response with recipe ingestion form
     """
-    return templates.TemplateResponse(request, "index.html")
+    return templates.TemplateResponse(request, "index.html", {"request": request})
