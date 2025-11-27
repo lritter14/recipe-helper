@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Ingestion Pipeline</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --bg-color: #f9fafb;
+            --text-color: #111827;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #1d4ed8;
+        }
+
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid var(--success-color);
+        }
+
+        .message.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid var(--error-color);
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .preview-section {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .preview-content {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 1rem;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .processing-time {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .preview-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .preview-actions button {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .preview-actions button.secondary {
+            background-color: #6b7280;
+        }
+
+        .preview-actions button.secondary:hover:not(:disabled) {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body>
+    <h1>Recipe Ingestion Pipeline</h1>
+    <div class="container">
+        <form id="recipe-form">
+            <div class="form-group">
+                <label for="recipe-input">Recipe Text</label>
+                <textarea id="recipe-input" name="input" placeholder="Paste your recipe text here..." required></textarea>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="preview-only" name="preview">
+                <label for="preview-only">Preview only (don't save)</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="overwrite" name="overwrite">
+                <label for="overwrite">Overwrite if ingredients match</label>
+            </div>
+
+            <button type="submit" id="submit-btn">
+                Process Recipe
+            </button>
+        </form>
+
+        <div id="message" class="message"></div>
+
+        <div id="preview-section" class="preview-section">
+            <div class="preview-header">
+                <h2>Preview</h2>
+                <div id="processing-time" class="processing-time"></div>
+            </div>
+            <div id="preview-content" class="preview-content"></div>
+            <div id="preview-actions" class="preview-actions" style="display: none;">
+                <button type="button" id="save-recipe-btn" class="secondary">Save Recipe</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('recipe-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const messageDiv = document.getElementById('message');
+        const previewSection = document.getElementById('preview-section');
+        const previewContent = document.getElementById('preview-content');
+        const processingTime = document.getElementById('processing-time');
+        const previewActions = document.getElementById('preview-actions');
+        const saveRecipeBtn = document.getElementById('save-recipe-btn');
+
+        // Store original form data for save/overwrite action
+        let lastPreviewData = null;
+        let lastPreviewResult = null;
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type} show`;
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        function setLoading(loading) {
+            submitBtn.disabled = loading;
+            if (loading) {
+                submitBtn.innerHTML = '<span class="loading"></span>Processing...';
+            } else {
+                submitBtn.textContent = 'Process Recipe';
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const data = {
+                input: formData.get('input'),
+                format: 'text',
+                preview: formData.get('preview') === 'on',
+                overwrite: formData.get('overwrite') === 'on'
+            };
+
+            setLoading(true);
+            messageDiv.classList.remove('show');
+            previewSection.classList.remove('show');
+            previewActions.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/v1/recipes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    // Store data for potential save/overwrite action
+                    lastPreviewData = data;
+                    lastPreviewResult = result;
+
+                    showMessage(
+                        result.recipe_path 
+                            ? `Recipe saved successfully! Path: ${result.recipe_path}`
+                            : 'Recipe preview generated successfully!',
+                        'success'
+                    );
+                    previewContent.textContent = result.preview || '';
+                    previewSection.classList.add('show');
+                    processingTime.textContent = `Processing time: ${result.processing_time_ms.toFixed(0)}ms`;
+
+                    // Show save/overwrite button only in preview mode (when preview was requested and no file was saved)
+                    if (data.preview === true && !result.recipe_path) {
+                        // Determine button text based on duplicate status
+                        if (result.is_duplicate && result.duplicate_ingredients_match) {
+                            saveRecipeBtn.textContent = 'Overwrite Recipe';
+                        } else {
+                            saveRecipeBtn.textContent = 'Save Recipe';
+                        }
+                        previewActions.style.display = 'flex';
+                    } else {
+                        previewActions.style.display = 'none';
+                    }
+                } else {
+                    showMessage(
+                        result.error || 'Recipe processing failed. Please try again.',
+                        'error'
+                    );
+                    if (result.preview) {
+                        previewContent.textContent = result.preview;
+                        previewSection.classList.add('show');
+                        previewActions.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                showMessage('An error occurred. Please try again later.', 'error');
+                console.error('Error:', error);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Handle save/overwrite button click
+        saveRecipeBtn.addEventListener('click', async () => {
+            if (!lastPreviewData || !lastPreviewResult) {
+                showMessage('No preview data available. Please generate a preview first.', 'error');
+                return;
+            }
+
+            // Determine overwrite flag based on duplicate status
+            const shouldOverwrite = lastPreviewResult.is_duplicate && lastPreviewResult.duplicate_ingredients_match;
+
+            const saveData = {
+                input: lastPreviewData.input,
+                format: lastPreviewData.format,
+                preview: false,  // Save, not preview
+                overwrite: shouldOverwrite
+            };
+
+            setLoading(true);
+            saveRecipeBtn.disabled = true;
+            messageDiv.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/v1/recipes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(saveData),
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    showMessage(
+                        `Recipe ${shouldOverwrite ? 'overwritten' : 'saved'} successfully! Path: ${result.recipe_path}`,
+                        'success'
+                    );
+                    // Hide the save button since recipe is now saved
+                    previewActions.style.display = 'none';
+                    // Update preview result to reflect saved state
+                    lastPreviewResult.recipe_path = result.recipe_path;
+                } else {
+                    showMessage(
+                        result.error || result.detail || 'Failed to save recipe. Please try again.',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showMessage('An error occurred while saving. Please try again later.', 'error');
+                console.error('Error:', error);
+            } finally {
+                setLoading(false);
+                saveRecipeBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,100 @@
+services:
+  recipe-api:
+    # Use image from registry (set via DOCKER_IMAGE env var or default to ghcr.io)
+    image: ${DOCKER_IMAGE:-ghcr.io/${GITHUB_USERNAME:-your-username}/recipe-pipeline/recipe-ingest:latest}
+    container_name: recipe-ingest-api
+    restart: unless-stopped
+    networks:
+      - recipe-network
+    environment:
+      - RECIPE_INGEST_LLM__ENDPOINT=http://ollama:11434
+      - RECIPE_INGEST_LLM__MODEL=llama3.1:8b
+      - RECIPE_INGEST_VAULT__PATH=/vault
+      - RECIPE_INGEST_LOG_LEVEL=INFO
+    volumes:
+      - ${VAULT_PATH:-/Users/loganritter/Documents/Obsidian/Personal}:/vault
+      - ${CONFIG_PATH:-./config}:/app/config:ro
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    labels:
+      # Watchtower label to enable automatic updates
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: recipe-ingest-tailscale
+    restart: unless-stopped
+    # Share the *recipe-api* network namespace instead of the other way around
+    network_mode: "service:recipe-api"
+    environment:
+      - TS_AUTH_KEY=${TS_AUTH_KEY}
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - ./scripts/start-tailscale.sh:/start-tailscale.sh:ro
+    command: ["/bin/sh", "/start-tailscale.sh", "recipe-ingest", "8000"]
+    depends_on:
+      recipe-api:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: recipe-ingest-ollama
+    restart: unless-stopped
+    volumes:
+      - /Users/loganritter/.ollama:/root/.ollama
+    ports:
+      # Expose on port 11435 to avoid conflicts with host Ollama (11434)
+      - "11435:11434"
+    networks:
+      - recipe-network
+    # Health check using Ollama CLI
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: recipe-ingest-watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Optional: Use docker config for registry authentication
+      - ${DOCKER_CONFIG_PATH:-~/.docker}:/config:ro
+    environment:
+      # Poll interval (default: 5 minutes, can be overridden)
+      - WATCHTOWER_POLL_INTERVAL=${WATCHTOWER_POLL_INTERVAL:-300}
+      # Only watch containers with the watchtower label
+      - WATCHTOWER_LABEL_ENABLE=true
+      # Clean up old images after update
+      - WATCHTOWER_CLEANUP=true
+      # Include stopped containers
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      # Send notifications (optional, can be configured)
+      - WATCHTOWER_NOTIFICATIONS=off
+      # Registry authentication (if using private registry)
+      - WATCHTOWER_REPO_USER=${DOCKER_REGISTRY_USERNAME:-}
+      - WATCHTOWER_REPO_PASS=${DOCKER_REGISTRY_PASSWORD:-}
+    command: --interval ${WATCHTOWER_POLL_INTERVAL:-300}
+    networks:
+      - recipe-network
+
+networks:
+  recipe-network:
+    driver: bridge
+
+volumes:
+  tailscale-state:
+    driver: local
+  ollama-data:
+    driver: local
+
