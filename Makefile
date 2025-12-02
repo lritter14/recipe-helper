@@ -56,11 +56,11 @@ clean:  ## Clean up generated files
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 
-build:  ## Build Docker image locally
-	docker build -t recipe-ingest:local .
+build:  ## Build Docker image locally (with host UID/GID for vault access)
+	docker build --build-arg USER_UID=$$(id -u) --build-arg USER_GID=$$(id -g) -t recipe-ingest:local .
 
 build-no-cache:  ## Build Docker image without using cache (fixes apt hash mismatches)
-	docker build --no-cache --pull -t recipe-ingest:local .
+	docker build --no-cache --pull --build-arg USER_UID=$$(id -u) --build-arg USER_GID=$$(id -g) -t recipe-ingest:local .
 
 run-container:  ## Run container using docker compose (requires build first, starts recipe-api and dependencies)
 	@if ! docker image inspect recipe-ingest:local >/dev/null 2>&1; then \

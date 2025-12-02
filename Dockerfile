@@ -26,8 +26,12 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Create non-root user with configurable UID/GID
+# Default to 1000:1000 to match common host user, but allow override via build args
+ARG USER_UID=1000
+ARG USER_GID=1000
+RUN groupadd -r -g ${USER_GID} appuser && \
+    useradd -r -u ${USER_UID} -g appuser appuser
 
 # Set working directory
 WORKDIR /app
