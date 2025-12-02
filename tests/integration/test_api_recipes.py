@@ -224,7 +224,9 @@ class TestRecipeIngestionEndpoint:
         )
         assert response.status_code == 422
 
-    def test_missing_vault_config_returns_503(self, client: TestClient, mock_llm_client) -> None:
+    def test_missing_vault_config_returns_503(
+        self, client: TestClient, mock_llm_client
+    ) -> None:
         """Test missing vault config returns 503."""
         with patch("recipe_ingest.api.routes.load_settings") as mock_load:
             from recipe_ingest.config import LLMConfig, Settings
@@ -289,7 +291,9 @@ class TestRecipeIngestionEndpoint:
 class TestHealthCheckEndpoint:
     """Tests for health check endpoint."""
 
-    def test_health_check_with_ollama_available(self, client: TestClient, temp_vault: Path) -> None:
+    def test_health_check_with_ollama_available(
+        self, client: TestClient, temp_vault: Path
+    ) -> None:
         """Test health check when Ollama is available."""
         with (
             patch("recipe_ingest.api.routes.load_settings") as mock_load,

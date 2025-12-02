@@ -87,7 +87,9 @@ Instructions:
         mock_client.health_check.return_value = True
 
         # Mock OllamaClient
-        mocker.patch("recipe_ingest.core.service.OllamaClient", return_value=mock_client)
+        mocker.patch(
+            "recipe_ingest.core.service.OllamaClient", return_value=mock_client
+        )
 
         # Process recipe with source URL
         result = process_recipe(
@@ -121,7 +123,9 @@ Instructions:
         self, temp_vault: Path, mocker: MockerFixture
     ) -> None:
         """Test that recipe without source_url has no URL in metadata."""
-        recipe_text = "Quick pasta recipe: 1 lb pasta, 2 cups marinara, 1/2 cup parmesan."
+        recipe_text = (
+            "Quick pasta recipe: 1 lb pasta, 2 cups marinara, 1/2 cup parmesan."
+        )
 
         # Mock LLM responses
         mock_client = mocker.Mock()
@@ -155,7 +159,9 @@ Instructions:
         mock_client.health_check.return_value = True
 
         # Mock OllamaClient
-        mocker.patch("recipe_ingest.core.service.OllamaClient", return_value=mock_client)
+        mocker.patch(
+            "recipe_ingest.core.service.OllamaClient", return_value=mock_client
+        )
 
         # Process recipe without source URL
         result = process_recipe(

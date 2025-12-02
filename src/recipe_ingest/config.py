@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 class LLMConfig(BaseModel):
     """LLM configuration."""
 
-    endpoint: str = Field(default="http://localhost:11434", description="Ollama endpoint URL")
+    endpoint: str = Field(
+        default="http://localhost:11434", description="Ollama endpoint URL"
+    )
     model: str = Field(default="llama3.1:8b", description="Model name")
     timeout: int = Field(default=120, description="Request timeout in seconds")
 
@@ -82,7 +84,11 @@ def load_settings() -> Settings:
                 recipes_dir=(
                     vault_recipes_dir
                     if vault_recipes_dir
-                    else (settings.vault.recipes_dir if settings.vault else "personal/recipes")
+                    else (
+                        settings.vault.recipes_dir
+                        if settings.vault
+                        else "personal/recipes"
+                    )
                 ),
             )
 
@@ -106,7 +112,9 @@ def load_settings() -> Settings:
 
             parsed = urlparse(settings.llm.endpoint)
             # Reconstruct URL with only scheme, netloc (host:port), no path
-            normalized_endpoint = urlunparse((parsed.scheme, parsed.netloc, "", "", "", ""))
+            normalized_endpoint = urlunparse(
+                (parsed.scheme, parsed.netloc, "", "", "", "")
+            )
             if normalized_endpoint != settings.llm.endpoint:
                 logger.warning(
                     f"LLM endpoint had path components, normalizing: "

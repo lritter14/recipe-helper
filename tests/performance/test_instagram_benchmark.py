@@ -92,7 +92,9 @@ PRIMARY_MODEL = os.getenv("OLLAMA_PRIMARY_MODEL")
 if PRIMARY_MODEL:
     if PRIMARY_MODEL in ALL_MODELS:
         # Move primary model to front if it exists in the list
-        OLLAMA_MODELS = [PRIMARY_MODEL] + [m for m in OLLAMA_MODELS if m != PRIMARY_MODEL]
+        OLLAMA_MODELS = [PRIMARY_MODEL] + [
+            m for m in OLLAMA_MODELS if m != PRIMARY_MODEL
+        ]
         logger.info(f"Using primary model '{PRIMARY_MODEL}' (found in OLLAMA_MODELS)")
     else:
         # Use primary model even if not in OLLAMA_MODELS (for testing specific models)
@@ -256,18 +258,26 @@ class TestInstagramBenchmark:
 
             # Basic verification
             assert result.recipe is not None, "Recipe should be extracted"
-            assert result.recipe.metadata.title is not None, "Recipe should have a title"
+            assert (
+                result.recipe.metadata.title is not None
+            ), "Recipe should have a title"
             assert len(result.recipe.ingredients) > 0, "Recipe should have ingredients"
-            assert len(result.recipe.instructions) > 0, "Recipe should have instructions"
+            assert (
+                len(result.recipe.instructions) > 0
+            ), "Recipe should have instructions"
 
-            logger.info(f"✓ Smoke test passed with {model}: {result.recipe.metadata.title}")
+            logger.info(
+                f"✓ Smoke test passed with {model}: {result.recipe.metadata.title}"
+            )
 
         except ConnectionError as e:
             pytest.fail(f"Setup failed: Cannot connect to Ollama - {e}")
         except ValueError as e:
             # Log the error but don't fail - this helps diagnose LLM issues
             logger.error(f"Setup test failed with {model}: {e}")
-            pytest.skip(f"Model '{model}' failed extraction (may be too small/weak): {e}")
+            pytest.skip(
+                f"Model '{model}' failed extraction (may be too small/weak): {e}"
+            )
 
     @pytest.mark.parametrize("model", OLLAMA_MODELS)
     def test_instagram_url_with_model(
@@ -344,7 +354,10 @@ class TestInstagramBenchmark:
             # Some models (especially small ones) may fail to extract properly
             # Skip instead of failing to allow other models to be tested
             error_msg = str(e)
-            if "failed to extract" in error_msg.lower() or "llm failed" in error_msg.lower():
+            if (
+                "failed to extract" in error_msg.lower()
+                or "llm failed" in error_msg.lower()
+            ):
                 logger.warning(
                     f"Model '{model}' failed extraction (may be too small/weak): {error_msg}"
                 )
@@ -414,7 +427,8 @@ class TestInstagramBenchmark:
                         "title": result.recipe.metadata.title,
                         "ingredients_count": len(result.recipe.ingredients),
                         "instructions_count": len(result.recipe.instructions),
-                        "has_nutrition": result.recipe.metadata.calories_per_serving is not None,
+                        "has_nutrition": result.recipe.metadata.calories_per_serving
+                        is not None,
                     }
                 )
 
@@ -543,7 +557,8 @@ class TestInstagramBenchmark:
                         "title": result.recipe.metadata.title,
                         "ingredients_count": len(result.recipe.ingredients),
                         "instructions_count": len(result.recipe.instructions),
-                        "has_nutrition": result.recipe.metadata.calories_per_serving is not None,
+                        "has_nutrition": result.recipe.metadata.calories_per_serving
+                        is not None,
                         "overall_accuracy": accuracy_metrics["overall_score"],
                         "title_similarity": accuracy_metrics["title_similarity"],
                         "ingredients_f1": accuracy_metrics["ingredients"]["f1"],
@@ -579,7 +594,9 @@ class TestInstagramBenchmark:
         successful_results = [r for r in results if "error" not in r]
         if successful_results:
             # Sort by overall accuracy (descending), then by total time (ascending)
-            successful_results.sort(key=lambda x: (-x["overall_accuracy"], x["total_time"]))
+            successful_results.sort(
+                key=lambda x: (-x["overall_accuracy"], x["total_time"])
+            )
 
             for r in successful_results:
                 print(

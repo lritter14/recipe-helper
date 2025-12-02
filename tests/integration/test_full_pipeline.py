@@ -103,7 +103,9 @@ class TestFullPipeline:
         # Explicit cleanup - temp_vault auto-cleans, but being explicit makes intent clear
         # All files created in temp_vault will be automatically removed when fixture tears down
 
-    def test_duplicate_detection_in_pipeline(self, temp_vault: Path, mocker: MockerFixture) -> None:
+    def test_duplicate_detection_in_pipeline(
+        self, temp_vault: Path, mocker: MockerFixture
+    ) -> None:
         """Test that duplicate detection works in full pipeline."""
         # Mock LLM responses
         mock_client = mocker.Mock(spec=OllamaClient)

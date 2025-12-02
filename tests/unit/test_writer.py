@@ -16,7 +16,9 @@ class TestVaultWriter:
         with pytest.raises(ValueError, match="Vault path does not exist"):
             VaultWriter(fake_path)
 
-    def test_init_with_file_instead_of_directory_raises_error(self, tmp_path: Path) -> None:
+    def test_init_with_file_instead_of_directory_raises_error(
+        self, tmp_path: Path
+    ) -> None:
         """Test that initializing with a file raises ValueError."""
         file_path = tmp_path / "file.txt"
         file_path.write_text("test")
@@ -68,7 +70,9 @@ class TestVaultWriter:
         assert '"' not in file_path.name
         assert ":" not in file_path.name
 
-    def test_write_without_overwrite_raises_on_duplicate(self, temp_vault: Path) -> None:
+    def test_write_without_overwrite_raises_on_duplicate(
+        self, temp_vault: Path
+    ) -> None:
         """Test that writing duplicate without overwrite raises error."""
         writer = VaultWriter(temp_vault)
         content = "test content"

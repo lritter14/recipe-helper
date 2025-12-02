@@ -58,7 +58,9 @@ class TestLoadSettings:
         assert settings.vault.recipes_dir == "recipes"
         assert settings.log_level == "DEBUG"
 
-    def test_load_settings_with_llm_base_url(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_load_settings_with_llm_base_url(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test that LLM_BASE_URL environment variable is supported."""
         monkeypatch.setenv("LLM_BASE_URL", "http://ollama:11434")
         monkeypatch.setenv("RECIPE_INGEST_LLM_MODEL", "test-model")
@@ -68,7 +70,9 @@ class TestLoadSettings:
         assert settings.llm.endpoint == "http://ollama:11434"
         assert settings.llm.model == "test-model"
 
-    def test_load_settings_with_partial_env_vars(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_load_settings_with_partial_env_vars(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test loading settings with only some environment variables set."""
         monkeypatch.setenv("RECIPE_INGEST_LLM_MODEL", "custom-model")
 

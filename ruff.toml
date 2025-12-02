@@ -22,4 +22,5 @@ ignore = [
 [lint.per-file-ignores]
 "__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 "tests/**/*.py" = ["ARG001", "ARG002"]  # Allow unused arguments in tests
+"tests/performance/create_reference_recipe_manual.py" = ["E402"]  # Imports after sys.path modification
 

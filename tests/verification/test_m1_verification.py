@@ -36,7 +36,10 @@ def mock_llm_client():
 
         # Mock generate to return recipe then nutrition
         # The extractor calls generate twice: once for recipe, once for nutrition
-        client_instance.generate.side_effect = [SAMPLE_RECIPE_JSON, SAMPLE_NUTRITION_JSON]
+        client_instance.generate.side_effect = [
+            SAMPLE_RECIPE_JSON,
+            SAMPLE_NUTRITION_JSON,
+        ]
         yield client_instance
 
 

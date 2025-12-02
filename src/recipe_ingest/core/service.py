@@ -53,7 +53,9 @@ def _extract_ingredients_from_markdown(markdown_content: str) -> list[str]:
     # Find the Ingredients section
     # Pattern: ## Ingredients followed by bullet points
     ingredients_match = re.search(
-        r"##\s+Ingredients\s*\n\n(.*?)(?=\n##|\Z)", markdown_content, re.DOTALL | re.IGNORECASE
+        r"##\s+Ingredients\s*\n\n(.*?)(?=\n##|\Z)",
+        markdown_content,
+        re.DOTALL | re.IGNORECASE,
     )
 
     if ingredients_match:
@@ -188,7 +190,9 @@ def process_recipe(
         if not preview_only:
             # If overwrite not requested, raise error
             if not overwrite:
-                logger.error(f"Recipe '{recipe.metadata.title}' already exists and overwrite=False")
+                logger.error(
+                    f"Recipe '{recipe.metadata.title}' already exists and overwrite=False"
+                )
                 raise FileExistsError(
                     f"Recipe '{recipe.metadata.title}' already exists. "
                     "Use overwrite=True to update directions, calories, or metadata (only if ingredients match exactly)."
