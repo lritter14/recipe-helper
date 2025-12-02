@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test lint format type-check clean docker-build docker-up docker-down git-init git-status build run-container
+.PHONY: help install install-dev test lint format type-check clean docker-build docker-up docker-down docker-clean docker-clean-all git-init git-status build build-no-cache run-container
 
 help:  ## Show this help message
 	@echo "Usage: make [target]"
@@ -54,7 +54,10 @@ clean:  ## Clean up generated files
 	find . -type f -name "*.pyc" -delete
 
 build:  ## Build Docker image locally
-	docker build -t recipe-ingest:local -f Dockerfile .
+	docker build -t recipe-ingest:local .
+
+build-no-cache:  ## Build Docker image without using cache (fixes apt hash mismatches)
+	docker build --no-cache --pull -t recipe-ingest:local .
 
 run-container:  ## Run container using docker compose (requires build first, starts recipe-api and dependencies)
 	@if ! docker image inspect recipe-ingest:local >/dev/null 2>&1; then \
@@ -66,8 +69,14 @@ run-container:  ## Run container using docker compose (requires build first, sta
 	@echo "Container started! API available at http://10.0.0.122:8100"
 	@echo "View logs with: docker compose logs -f recipe-api"
 
-docker-build:  ## Build Docker image (alias for build)
-	$(MAKE) build
+docker-build: build  ## Build Docker image (alias for build)
+
+docker-clean:  ## Clean Docker build cache and unused resources
+	docker builder prune -f
+	docker system prune -f --volumes
+
+docker-clean-all:  ## Remove all Docker images and containers (use with caution)
+	docker system prune -a -f --volumes
 
 docker-up:  ## Start services with Docker Compose
 	docker compose up -d
