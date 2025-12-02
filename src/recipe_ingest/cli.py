@@ -131,9 +131,7 @@ def main(
                 # Clean URL to remove tracking parameters
                 source_url = instagram_parser.clean_url(input_text.strip())
                 input_text = instagram_parser.parse(source_url)
-                logger.info(
-                    f"Successfully extracted caption ({len(input_text)} characters)"
-                )
+                logger.info(f"Successfully extracted caption ({len(input_text)} characters)")
                 click.echo(f"✅ Extracted caption ({len(input_text)} characters)")
             except ValueError as e:
                 logger.error(f"Instagram parsing error: {e}")
@@ -172,9 +170,7 @@ def main(
         logger.info(f"Using LLM model: {llm_model_final}")
 
         # Determine recipes directory (from env var or default)
-        recipes_dir = (
-            settings.vault.recipes_dir if settings.vault else "personal/recipes"
-        )
+        recipes_dir = settings.vault.recipes_dir if settings.vault else "personal/recipes"
         logger.info(f"Using recipes directory: {recipes_dir}")
 
         # Process recipe using shared service

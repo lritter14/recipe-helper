@@ -141,14 +141,10 @@ class RecipeExtractor:
                     f"Response keys: {list(result.keys())}. "
                     f"Attempting fallback extraction from input text."
                 )
-                fallback_ingredients = self._extract_ingredients_fallback(
-                    processed_text
-                )
+                fallback_ingredients = self._extract_ingredients_fallback(processed_text)
                 if fallback_ingredients:
                     result["ingredients"] = fallback_ingredients
-                    logger.info(
-                        f"Using fallback ingredients ({len(fallback_ingredients)} items)"
-                    )
+                    logger.info(f"Using fallback ingredients ({len(fallback_ingredients)} items)")
                 else:
                     result["ingredients"] = []
                     logger.warning("Using empty ingredients list as fallback")
@@ -159,14 +155,10 @@ class RecipeExtractor:
                     f"Response keys: {list(result.keys())}. "
                     f"Attempting fallback extraction from input text."
                 )
-                fallback_instructions = self._extract_instructions_fallback(
-                    processed_text
-                )
+                fallback_instructions = self._extract_instructions_fallback(processed_text)
                 if fallback_instructions:
                     result["instructions"] = fallback_instructions
-                    logger.info(
-                        f"Using fallback instructions ({len(fallback_instructions)} steps)"
-                    )
+                    logger.info(f"Using fallback instructions ({len(fallback_instructions)} steps)")
                 else:
                     result["instructions"] = []
                     logger.warning("Using empty instructions list as fallback")
@@ -258,9 +250,7 @@ class RecipeExtractor:
                     url = HttpUrl(source_url)
                     logger.debug(f"Set source URL in metadata: {source_url}")
                 except Exception as e:
-                    logger.warning(
-                        f"Invalid source URL format: {source_url}, error: {e}"
-                    )
+                    logger.warning(f"Invalid source URL format: {source_url}, error: {e}")
 
             # Build metadata
             metadata = RecipeMetadata(
@@ -333,9 +323,7 @@ class RecipeExtractor:
                 "fat_grams": float(result["fat_grams"]),
             }
 
-            logger.debug(
-                f"Calculated nutrition: {nutrition['calories_per_serving']} cal/serving"
-            )
+            logger.debug(f"Calculated nutrition: {nutrition['calories_per_serving']} cal/serving")
             return nutrition
 
         except (KeyError, TypeError, ValueError) as e:
@@ -423,9 +411,7 @@ Text:
 
 Return JSON only."""
 
-    def _extract_fallback(
-        self, text: str, schema_response: dict[str, Any]
-    ) -> dict[str, Any]:
+    def _extract_fallback(self, text: str, schema_response: dict[str, Any]) -> dict[str, Any]:
         """Extract recipe data from text when LLM returns schema instead of data.
 
         Args:

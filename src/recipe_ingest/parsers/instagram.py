@@ -57,10 +57,7 @@ class InstagramParser:
             return False
 
         # Check against all patterns
-        return any(
-            re.match(pattern, url, re.IGNORECASE)
-            for pattern in self.INSTAGRAM_URL_PATTERNS
-        )
+        return any(re.match(pattern, url, re.IGNORECASE) for pattern in self.INSTAGRAM_URL_PATTERNS)
 
     def clean_url(self, url: str) -> str:
         """Remove tracking parameters and fragments from Instagram URL.
@@ -191,9 +188,7 @@ class InstagramParser:
 
             # Ensure caption is a string type
             caption_str = str(caption) if caption else ""
-            logger.info(
-                f"Successfully extracted caption ({len(caption_str)} characters)"
-            )
+            logger.info(f"Successfully extracted caption ({len(caption_str)} characters)")
             return caption_str
 
         except ValueError:

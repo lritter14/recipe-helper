@@ -190,9 +190,7 @@ def process_recipe(
         if not preview_only:
             # If overwrite not requested, raise error
             if not overwrite:
-                logger.error(
-                    f"Recipe '{recipe.metadata.title}' already exists and overwrite=False"
-                )
+                logger.error(f"Recipe '{recipe.metadata.title}' already exists and overwrite=False")
                 raise FileExistsError(
                     f"Recipe '{recipe.metadata.title}' already exists. "
                     "Use overwrite=True to update directions, calories, or metadata (only if ingredients match exactly)."

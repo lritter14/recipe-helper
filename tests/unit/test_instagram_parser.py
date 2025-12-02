@@ -8,9 +8,7 @@ try:
     from recipe_ingest.parsers.instagram import InstagramParser
 except ImportError:
     InstagramParser = None  # type: ignore[assignment, misc]
-    pytestmark = pytest.mark.skip(
-        reason="InstagramParser not available (lzma dependency missing)"
-    )
+    pytestmark = pytest.mark.skip(reason="InstagramParser not available (lzma dependency missing)")
 
 
 class TestInstagramParser:
@@ -22,27 +20,21 @@ class TestInstagramParser:
         assert parser.is_instagram_url("https://www.instagram.com/p/ABC123/")
         assert parser.is_instagram_url("https://instagram.com/p/ABC123/")
         assert parser.is_instagram_url("http://www.instagram.com/p/ABC123/")
-        assert parser.is_instagram_url(
-            "https://www.instagram.com/p/ABC123/?utm_source=test"
-        )
+        assert parser.is_instagram_url("https://www.instagram.com/p/ABC123/?utm_source=test")
 
     def test_is_instagram_url_with_reel_url(self) -> None:
         """Test URL detection for reel URLs."""
         parser = InstagramParser()
         assert parser.is_instagram_url("https://www.instagram.com/reel/ABC123/")
         assert parser.is_instagram_url("https://instagram.com/reel/ABC123/")
-        assert parser.is_instagram_url(
-            "https://www.instagram.com/reel/ABC123/?utm_source=test"
-        )
+        assert parser.is_instagram_url("https://www.instagram.com/reel/ABC123/?utm_source=test")
 
     def test_is_instagram_url_with_tv_url(self) -> None:
         """Test URL detection for IGTV URLs."""
         parser = InstagramParser()
         assert parser.is_instagram_url("https://www.instagram.com/tv/ABC123/")
         assert parser.is_instagram_url("https://instagram.com/tv/ABC123/")
-        assert parser.is_instagram_url(
-            "https://www.instagram.com/tv/ABC123/?utm_source=test"
-        )
+        assert parser.is_instagram_url("https://www.instagram.com/tv/ABC123/?utm_source=test")
 
     def test_is_instagram_url_with_invalid_urls(self) -> None:
         """Test URL detection rejects non-Instagram URLs."""
@@ -55,35 +47,23 @@ class TestInstagramParser:
     def test_extract_shortcode_from_post_url(self) -> None:
         """Test shortcode extraction from post URL."""
         parser = InstagramParser()
-        assert (
-            parser._extract_shortcode("https://www.instagram.com/p/ABC123/") == "ABC123"
-        )
+        assert parser._extract_shortcode("https://www.instagram.com/p/ABC123/") == "ABC123"
         assert parser._extract_shortcode("https://instagram.com/p/XYZ789/") == "XYZ789"
         assert (
-            parser._extract_shortcode(
-                "https://www.instagram.com/p/ABC123/?utm_source=test"
-            )
+            parser._extract_shortcode("https://www.instagram.com/p/ABC123/?utm_source=test")
             == "ABC123"
         )
 
     def test_extract_shortcode_from_reel_url(self) -> None:
         """Test shortcode extraction from reel URL."""
         parser = InstagramParser()
-        assert (
-            parser._extract_shortcode("https://www.instagram.com/reel/ABC123/")
-            == "ABC123"
-        )
-        assert (
-            parser._extract_shortcode("https://instagram.com/reel/XYZ789/") == "XYZ789"
-        )
+        assert parser._extract_shortcode("https://www.instagram.com/reel/ABC123/") == "ABC123"
+        assert parser._extract_shortcode("https://instagram.com/reel/XYZ789/") == "XYZ789"
 
     def test_extract_shortcode_from_tv_url(self) -> None:
         """Test shortcode extraction from IGTV URL."""
         parser = InstagramParser()
-        assert (
-            parser._extract_shortcode("https://www.instagram.com/tv/ABC123/")
-            == "ABC123"
-        )
+        assert parser._extract_shortcode("https://www.instagram.com/tv/ABC123/") == "ABC123"
         assert parser._extract_shortcode("https://instagram.com/tv/XYZ789/") == "XYZ789"
 
     def test_extract_shortcode_with_invalid_url_raises_error(self) -> None:
@@ -109,8 +89,7 @@ class TestInstagramParser:
         result = parser.parse(url)
 
         assert (
-            result
-            == "Delicious chocolate cake recipe! Ingredients: 2 cups flour, 1 cup sugar..."
+            result == "Delicious chocolate cake recipe! Ingredients: 2 cups flour, 1 cup sugar..."
         )
         assert isinstance(result, str)
         assert len(result) > 0
@@ -151,9 +130,7 @@ class TestInstagramParser:
         with pytest.raises(ValueError, match="does not contain a caption"):
             parser.parse(url)
 
-    def test_parse_with_post_not_found_raises_connection_error(
-        self, mocker: MockerFixture
-    ) -> None:
+    def test_parse_with_post_not_found_raises_connection_error(self, mocker: MockerFixture) -> None:
         """Test that post not found raises ConnectionError."""
         parser = InstagramParser()
 
@@ -169,9 +146,7 @@ class TestInstagramParser:
         with pytest.raises(ConnectionError, match="not found or has been changed"):
             parser.parse(url)
 
-    def test_parse_with_private_profile_raises_value_error(
-        self, mocker: MockerFixture
-    ) -> None:
+    def test_parse_with_private_profile_raises_value_error(self, mocker: MockerFixture) -> None:
         """Test that private profile raises ValueError."""
         parser = InstagramParser()
 
@@ -207,9 +182,7 @@ class TestInstagramParser:
         with pytest.raises(ConnectionError, match="Failed to connect to Instagram"):
             parser.parse(url)
 
-    def test_parse_with_login_required_raises_connection_error(
-        self, mocker: MockerFixture
-    ) -> None:
+    def test_parse_with_login_required_raises_connection_error(self, mocker: MockerFixture) -> None:
         """Test that login required raises ConnectionError."""
         parser = InstagramParser()
 
@@ -232,9 +205,7 @@ class TestInstagramParser:
         parser = InstagramParser()
 
         # Mock Post.from_shortcode to raise generic exception
-        mocker.patch(
-            "instaloader.Post.from_shortcode", side_effect=Exception("Unexpected error")
-        )
+        mocker.patch("instaloader.Post.from_shortcode", side_effect=Exception("Unexpected error"))
 
         url = "https://www.instagram.com/p/ABC123/"
         with pytest.raises(ConnectionError, match="Failed to load Instagram post"):

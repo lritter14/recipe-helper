@@ -34,9 +34,7 @@ class RecipeRequest(BaseModel):
     """Request model for recipe ingestion."""
 
     input: str = Field(..., description="Recipe text or URL", min_length=1)
-    format: Literal["text", "instagram"] = Field(
-        default="text", description="Input format type"
-    )
+    format: Literal["text", "instagram"] = Field(default="text", description="Input format type")
     preview: bool = Field(default=False, description="Preview only, don't save recipe")
     overwrite: bool = Field(
         default=False, description="Overwrite existing recipe if ingredients match"
@@ -48,9 +46,7 @@ class RecipeResponse(BaseModel):
 
     status: Literal["success", "error"] = Field(..., description="Processing status")
     recipe_path: str | None = Field(None, description="Path to saved recipe file")
-    processing_time_ms: float = Field(
-        ..., description="Processing time in milliseconds"
-    )
+    processing_time_ms: float = Field(..., description="Processing time in milliseconds")
     preview: str | None = Field(None, description="Formatted markdown preview")
     error: str | None = Field(None, description="Error message if status is error")
     is_duplicate: bool = Field(
@@ -65,9 +61,7 @@ class RecipeResponse(BaseModel):
 class HealthResponse(BaseModel):
     """Health check response."""
 
-    status: Literal["healthy", "unhealthy"] = Field(
-        ..., description="Service health status"
-    )
+    status: Literal["healthy", "unhealthy"] = Field(..., description="Service health status")
     ollama_connected: bool = Field(..., description="Ollama connectivity status")
     vault_accessible: bool = Field(..., description="Vault path accessibility")
 
@@ -105,9 +99,7 @@ async def ingest_recipe(request: RecipeRequest) -> RecipeResponse:
 
         vault_path = Path(vault_path)
         if not vault_path.exists() or not vault_path.is_dir():
-            logger.error(
-                f"Vault path does not exist or is not a directory: {vault_path}"
-            )
+            logger.error(f"Vault path does not exist or is not a directory: {vault_path}")
             raise HTTPException(
                 status_code=503,
                 detail="Service temporarily unavailable. Vault path is not accessible.",
@@ -116,9 +108,7 @@ async def ingest_recipe(request: RecipeRequest) -> RecipeResponse:
         # Get LLM settings
         llm_endpoint = settings.llm.endpoint
         llm_model = settings.llm.model
-        recipes_dir = (
-            settings.vault.recipes_dir if settings.vault else "personal/recipes"
-        )
+        recipes_dir = settings.vault.recipes_dir if settings.vault else "personal/recipes"
 
         logger.info(
             f"Processing recipe request: preview={request.preview}, "
@@ -150,9 +140,7 @@ async def ingest_recipe(request: RecipeRequest) -> RecipeResponse:
                 # Clean URL to remove tracking parameters
                 source_url = instagram_parser.clean_url(request.input.strip())
                 input_text = instagram_parser.parse(source_url)
-                logger.info(
-                    f"Successfully extracted caption ({len(input_text)} characters)"
-                )
+                logger.info(f"Successfully extracted caption ({len(input_text)} characters)")
             except ValueError as e:
                 logger.error(f"Instagram parsing error: {e}")
                 raise HTTPException(

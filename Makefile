@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test lint format type-check clean docker-build docker-up docker-down docker-clean docker-clean-all git-init git-status build build-no-cache run-container
+.PHONY: help install install-dev test lint format format-check type-check clean docker-build docker-up docker-down docker-clean docker-clean-all git-init git-status build build-no-cache run-container
 
 help:  ## Show this help message
 	@echo "Usage: make [target]"
@@ -36,9 +36,12 @@ test-integration:  ## Run integration tests only
 lint:  ## Run linters (ruff)
 	ruff check src/ tests/
 
-format:  ## Format code with black and ruff
-	black src/ tests/
+format:  ## Format code with ruff
+	ruff format src/ tests/
 	ruff check --fix src/ tests/
+
+format-check:  ## Check code formatting without fixing (matches CI)
+	ruff format --check src/ tests/
 
 type-check:  ## Run type checker (mypy)
 	mypy src/

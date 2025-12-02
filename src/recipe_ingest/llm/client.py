@@ -97,9 +97,7 @@ class OllamaClient:
                 )
             else:
                 response_preview = (
-                    response_text[:500] + "..."
-                    if len(response_text) > 500
-                    else response_text
+                    response_text[:500] + "..." if len(response_text) > 500 else response_text
                 )
                 logger.debug(f"Raw response preview: {response_preview}")
 
@@ -107,12 +105,8 @@ class OllamaClient:
             if format_json:
                 try:
                     parsed: dict[str, Any] = json.loads(response_text)
-                    logger.info(
-                        f"Successfully parsed JSON response. Keys: {list(parsed.keys())}"
-                    )
-                    logger.debug(
-                        f"Parsed response: {json.dumps(parsed, indent=2)[:1000]}"
-                    )
+                    logger.info(f"Successfully parsed JSON response. Keys: {list(parsed.keys())}")
+                    logger.debug(f"Parsed response: {json.dumps(parsed, indent=2)[:1000]}")
                     return parsed
                 except json.JSONDecodeError as e:
                     logger.error(
@@ -132,9 +126,7 @@ class OllamaClient:
             ) from e
         except requests.exceptions.Timeout as e:
             logger.error(f"Ollama request timed out after {self._timeout}s")
-            raise ConnectionError(
-                f"Ollama request timed out after {self._timeout}s"
-            ) from e
+            raise ConnectionError(f"Ollama request timed out after {self._timeout}s") from e
         except requests.exceptions.HTTPError as e:
             logger.error(f"Ollama HTTP error: {e}")
             raise ConnectionError(f"Ollama HTTP error: {e}") from e
@@ -164,9 +156,7 @@ class OllamaClient:
 
                     time.sleep(delay)
                 else:
-                    logger.warning(
-                        f"Ollama health check failed after {retries} attempts: {e}"
-                    )
+                    logger.warning(f"Ollama health check failed after {retries} attempts: {e}")
         return False
 
     def list_models(self) -> list[str]:

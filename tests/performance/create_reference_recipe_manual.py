@@ -269,11 +269,7 @@ def main() -> None:
         return
 
     # Default to interactive if not loading from template
-    recipe = (
-        load_and_validate_template()
-        if args.from_template
-        else create_reference_interactive()
-    )
+    recipe = load_and_validate_template() if args.from_template else create_reference_interactive()
 
     # Save reference recipe
     REFERENCE_RECIPE_DIR.mkdir(parents=True, exist_ok=True)
@@ -293,9 +289,7 @@ def main() -> None:
         print(f"Calories per serving: {recipe.metadata.calories_per_serving}")
     print(f"\nSaved to: {REFERENCE_RECIPE_PATH}")
     print("=" * 80)
-    print(
-        "\nYou can now run benchmark tests to compare other models against this reference."
-    )
+    print("\nYou can now run benchmark tests to compare other models against this reference.")
 
 
 if __name__ == "__main__":

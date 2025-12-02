@@ -32,9 +32,7 @@ class TestRecipeExtractor:
         with pytest.raises(ValueError, match="Input text cannot be empty"):
             extractor.extract("   ")
 
-    def test_extract_with_valid_text_returns_recipe(
-        self, mocker: MockerFixture
-    ) -> None:
+    def test_extract_with_valid_text_returns_recipe(self, mocker: MockerFixture) -> None:
         """Test successful recipe extraction from valid text."""
         # Mock LLM responses
         mock_client = mocker.Mock(spec=OllamaClient)
@@ -78,9 +76,7 @@ class TestRecipeExtractor:
         # Verify LLM was called twice
         assert mock_client.generate.call_count == 2
 
-    def test_extract_missing_required_field_uses_fallback(
-        self, mocker: MockerFixture
-    ) -> None:
+    def test_extract_missing_required_field_uses_fallback(self, mocker: MockerFixture) -> None:
         """Test that missing required fields use fallback logic instead of raising error."""
         mock_client = mocker.Mock(spec=OllamaClient)
         mock_client.generate.return_value = {
@@ -97,9 +93,7 @@ class TestRecipeExtractor:
         assert recipe.ingredients == []  # Fallback to empty list
         assert recipe.instructions == []  # Fallback to empty list
 
-    def test_calculate_nutrition_returns_defaults_on_error(
-        self, mocker: MockerFixture
-    ) -> None:
+    def test_calculate_nutrition_returns_defaults_on_error(self, mocker: MockerFixture) -> None:
         """Test that nutrition calculation returns defaults if LLM fails."""
         mock_client = mocker.Mock(spec=OllamaClient)
         mock_client.generate.side_effect = ValueError("LLM error")
@@ -113,9 +107,7 @@ class TestRecipeExtractor:
         assert result["protein_grams"] == 0.0
         assert result["fat_grams"] == 0.0
 
-    def test_extract_with_source_url_stores_in_metadata(
-        self, mocker: MockerFixture
-    ) -> None:
+    def test_extract_with_source_url_stores_in_metadata(self, mocker: MockerFixture) -> None:
         """Test that source_url parameter is stored in recipe metadata."""
         mock_client = mocker.Mock(spec=OllamaClient)
         mock_client.generate.side_effect = [
@@ -175,9 +167,7 @@ class TestRecipeExtractor:
         # Verify URL is None
         assert recipe.metadata.url is None
 
-    def test_extract_with_invalid_source_url_logs_warning(
-        self, mocker: MockerFixture
-    ) -> None:
+    def test_extract_with_invalid_source_url_logs_warning(self, mocker: MockerFixture) -> None:
         """Test that invalid source_url format logs warning and continues."""
         mock_client = mocker.Mock(spec=OllamaClient)
         mock_client.generate.side_effect = [
