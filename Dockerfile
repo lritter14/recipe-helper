@@ -38,9 +38,11 @@ COPY --from=builder /root/.local /home/appuser/.local
 # Copy application source code
 COPY src/ ./src/
 
-# Set PATH to include user's local bin directory and PYTHONPATH for imports
-ENV PATH=/home/appuser/.local/bin:$PATH \
-    PYTHONPATH=/app/src
+# Set PATH to include user's local bin directory
+ENV PATH=/home/appuser/.local/bin:$PATH
+
+# Set PYTHONPATH for imports (must be set after copying source)
+ENV PYTHONPATH=/app/src
 
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app
@@ -56,4 +58,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8100/api/v1/health', timeout=5)" || exit 1
 
 # Run the application
-CMD ["uvicorn", "recipe_ingest.api.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8100"]
+# PYTHONPATH is set in ENV, so Python will find the recipe_ingest module
+CMD ["python", "-m", "uvicorn", "recipe_ingest.api.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8100"]
