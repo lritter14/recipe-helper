@@ -2,47 +2,68 @@
 .git
 .gitignore
 
-# Python
-__pycache__
+# Python cache / build artifacts
+__pycache__/
 *.py[cod]
 *$py.class
-*.egg-info
-.pytest_cache
-.mypy_cache
-.ruff_cache
-.coverage
-htmlcov
+*.egg-info/
+.build/
+dist/
+htmlcov/
+.coverage*
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
 
 # Virtual environments
 venv/
-env/
-.venv
+.env
+.env.*
+.envrc
 
-# IDEs
+# Editor / OS junk
 .vscode/
 .idea/
 *.swp
 .DS_Store
 
-# Documentation (but keep README.md for package metadata)
-*.md
-!README.md
+# Local docs / plans that don't need to be in the image
 docs/
+plan/
 
-# Tests
+# Test files and directories
 tests/
+*.test.py
+*_test.py
+test_*.py
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+.tox/
+
+# Build and CI/CD scripts
+scripts/
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+.circleci/
+
+# Development configuration files
+Makefile
+docker-compose.yml
+docker-compose.*.yml
+.dockerignore
+.editorconfig
 .pre-commit-config.yaml
 
-# Config
-.env
-.env.local
-config/config.yaml
+# Development documentation
+CONTRIBUTING.md
+SETUP.md
+QUICKSTART.md
+*.md
+!README.md
 
-# Docker
-docker-compose.yml
-docker-compose.override.yml
-Dockerfile
-
-# Misc
-Makefile
+# Misc logs
 *.log

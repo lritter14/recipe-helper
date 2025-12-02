@@ -46,7 +46,6 @@ recipe-helper/
 │       └── test_api.py
 ├── scripts/                     # Utility scripts
 │   ├── setup-dev.sh            # Development setup
-│   └── check-llm.sh             # LLM server connectivity check
 ├── pyproject.toml              # Project metadata and dependencies
 ├── Dockerfile                   # Container image definition
 ├── docker-compose.yml          # Multi-container orchestration
