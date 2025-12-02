@@ -62,13 +62,14 @@ RUN useradd -m -u 1000 recipeuser && \
 
 USER recipeuser
 
-# Environment variables
+# Environment variables with defaults
 ENV PYTHONUNBUFFERED=1 \
-    RECIPE_INGEST_LOG_LEVEL=INFO
+    RECIPE_INGEST_LOG_LEVEL=${RECIPE_INGEST_LOG_LEVEL:-INFO} \
+    API_PORT=${API_PORT:-8100}
 
-# Health check
+# Health check (uses ENV variable at runtime)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8100/api/v1/health || exit 1
+    CMD sh -c "curl -f http://localhost:$API_PORT/api/v1/health || exit 1"
 
-# Default command
-CMD ["uvicorn", "recipe_ingest.api.app:create_app", "--host", "0.0.0.0", "--port", "8100", "--factory"]
+# Default command (uses ENV variable at runtime)
+CMD ["sh", "-c", "uvicorn recipe_ingest.api.app:create_app --host 0.0.0.0 --port $API_PORT --factory"]

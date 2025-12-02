@@ -32,7 +32,6 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix="RECIPE_INGEST_",
-        env_nested_delimiter="__",
         case_sensitive=False,
     )
 
@@ -48,33 +47,43 @@ def load_settings() -> Settings:
         Application settings instance
     """
     try:
-        # Map single-underscore env vars to double-underscore format for Pydantic
-        # This allows using RECIPE_INGEST_LLM_ENDPOINT (single underscore) instead of RECIPE_INGEST_LLM__ENDPOINT (double underscore)
-        # Pydantic requires double underscores for nested config (e.g., RECIPE_INGEST_VAULT__RECIPES_DIR)
-        env_mapping = {
-            "RECIPE_INGEST_LLM_ENDPOINT": "RECIPE_INGEST_LLM__ENDPOINT",
-            "RECIPE_INGEST_LLM_MODEL": "RECIPE_INGEST_LLM__MODEL",
-            "RECIPE_INGEST_LLM_TIMEOUT": "RECIPE_INGEST_LLM__TIMEOUT",
-            "RECIPE_INGEST_VAULT_PATH": "RECIPE_INGEST_VAULT__PATH",
-            "RECIPE_INGEST_VAULT_RECIPES_DIR": "RECIPE_INGEST_VAULT__RECIPES_DIR",
-        }
+        # Load base settings
+        settings = Settings()
 
-        # Track which env vars we set so we can clean them up
-        env_vars_set = []
+        # Manually map flat env vars to nested config objects
+        # LLM configuration
+        llm_endpoint = os.getenv("RECIPE_INGEST_LLM_ENDPOINT")
+        llm_model = os.getenv("RECIPE_INGEST_LLM_MODEL")
+        llm_timeout = os.getenv("RECIPE_INGEST_LLM_TIMEOUT")
 
-        # Temporarily set double-underscore vars from single-underscore vars
-        # Only map if the double-underscore version doesn't already exist
-        for single_underscore_key, double_underscore_key in env_mapping.items():
-            if single_underscore_key in os.environ and double_underscore_key not in os.environ:
-                os.environ[double_underscore_key] = os.environ[single_underscore_key]
-                env_vars_set.append(double_underscore_key)
+        if llm_endpoint or llm_model or llm_timeout:
+            timeout_value = settings.llm.timeout
+            if llm_timeout:
+                try:
+                    timeout_value = int(llm_timeout)
+                except ValueError:
+                    logger.warning(f"Invalid LLM timeout value: {llm_timeout}, using default: {settings.llm.timeout}")
+            
+            settings.llm = LLMConfig(
+                endpoint=llm_endpoint if llm_endpoint else settings.llm.endpoint,
+                model=llm_model if llm_model else settings.llm.model,
+                timeout=timeout_value,
+            )
 
-        try:
-            settings = Settings()
-        finally:
-            # Clean up the environment variables we set
-            for key in env_vars_set:
-                os.environ.pop(key, None)
+        # Vault configuration
+        vault_path = os.getenv("RECIPE_INGEST_VAULT_PATH")
+        vault_recipes_dir = os.getenv("RECIPE_INGEST_VAULT_RECIPES_DIR")
+
+        if vault_path:
+            settings.vault = VaultConfig(
+                path=Path(vault_path),
+                recipes_dir=vault_recipes_dir if vault_recipes_dir else (settings.vault.recipes_dir if settings.vault else "personal/recipes"),
+            )
+
+        # Log level (handled by Pydantic via env_prefix, but ensure it's set if provided)
+        log_level = os.getenv("RECIPE_INGEST_LOG_LEVEL")
+        if log_level:
+            settings.log_level = log_level
 
         # Support LLM_BASE_URL as a simpler alternative to RECIPE_INGEST_LLM_ENDPOINT
         # This allows using the service name pattern: LLM_BASE_URL=http://ollama:11434
