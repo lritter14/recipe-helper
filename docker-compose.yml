@@ -31,6 +31,9 @@ services:
     ports:
       - "8100:8100"
     environment:
+      # PYTHONPATH is baked into the image (/app/src) - no need to set here
+      # Port is configurable via API_PORT (defaults to 8100 in Dockerfile)
+      - API_PORT=8100
       # LLM Configuration - uses service name for internal communication
       - RECIPE_INGEST_LLM_ENDPOINT=http://ollama:11434
       # Alternative: use LLM_BASE_URL
@@ -53,7 +56,8 @@ services:
       - recipe-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/api/v1/health', timeout=5)"]
+      # Uses API_PORT env var (defaults to 8100 if not set)
+      test: ["CMD-SHELL", "python -c \"import urllib.request, os; port=os.getenv('API_PORT', '8100'); urllib.request.urlopen(f'http://localhost:{port}/api/v1/health', timeout=5)\""]
       interval: 30s
       timeout: 10s
       retries: 3

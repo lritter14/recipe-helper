@@ -38,11 +38,17 @@ COPY --from=builder /root/.local /home/appuser/.local
 # Copy application source code
 COPY src/ ./src/
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+
 # Set PATH to include user's local bin directory
 ENV PATH=/home/appuser/.local/bin:$PATH
 
 # Set PYTHONPATH for imports (must be set after copying source)
 ENV PYTHONPATH=/app/src
+
+# Make entrypoint script executable
+RUN chmod +x /app/docker-entrypoint.sh
 
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app
@@ -50,13 +56,17 @@ RUN chown -R appuser:appuser /app
 # Switch to non-root user
 USER appuser
 
-# Expose port
-EXPOSE 8100
+# Port configuration - fully configurable via API_PORT env var in docker-compose
+# No EXPOSE needed - docker-compose ports mapping handles actual port exposure
+# Default port if not specified (can be overridden in docker-compose)
+ENV API_PORT=8100
 
-# Health check
+# Health check (uses API_PORT env var, defaults to 8100 if not set)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8100/api/v1/health', timeout=5)" || exit 1
+    CMD sh -c 'python -c "import urllib.request, os; port=os.getenv(\"API_PORT\", \"8100\"); urllib.request.urlopen(f\"http://localhost:{port}/api/v1/health\", timeout=5)"' || exit 1
 
 # Run the application
-# PYTHONPATH is set in ENV, so Python will find the recipe_ingest module
-CMD ["python", "-m", "uvicorn", "recipe_ingest.api.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8100"]
+# PYTHONPATH is baked into image (/app/src) - no need to set in docker-compose
+# Port is fully configurable via API_PORT environment variable in docker-compose
+# Using JSON form for proper signal handling
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
