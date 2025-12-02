@@ -62,8 +62,10 @@ def load_settings() -> Settings:
                 try:
                     timeout_value = int(llm_timeout)
                 except ValueError:
-                    logger.warning(f"Invalid LLM timeout value: {llm_timeout}, using default: {settings.llm.timeout}")
-            
+                    logger.warning(
+                        f"Invalid LLM timeout value: {llm_timeout}, using default: {settings.llm.timeout}"
+                    )
+
             settings.llm = LLMConfig(
                 endpoint=llm_endpoint if llm_endpoint else settings.llm.endpoint,
                 model=llm_model if llm_model else settings.llm.model,
@@ -77,7 +79,11 @@ def load_settings() -> Settings:
         if vault_path:
             settings.vault = VaultConfig(
                 path=Path(vault_path),
-                recipes_dir=vault_recipes_dir if vault_recipes_dir else (settings.vault.recipes_dir if settings.vault else "personal/recipes"),
+                recipes_dir=(
+                    vault_recipes_dir
+                    if vault_recipes_dir
+                    else (settings.vault.recipes_dir if settings.vault else "personal/recipes")
+                ),
             )
 
         # Log level (handled by Pydantic via env_prefix, but ensure it's set if provided)
