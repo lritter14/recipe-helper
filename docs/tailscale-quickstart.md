@@ -29,9 +29,6 @@ TS_AUTHKEY=tskey-auth-xxxxxxxxxxxxx-xxxxxxxxxxxxx
 
 # Obsidian Vault Path (absolute path)
 VAULT_PATH=/path/to/your/obsidian/vault
-
-# Optional: Config path
-CONFIG_PATH=./config
 ```
 
 **Replace**:

@@ -188,7 +188,6 @@ recipe-helper/
 ├── tests/                   # Test suite
 │   ├── unit/                # Unit tests
 │   └── integration/         # Integration tests
-├── config/                  # Configuration files
 ├── pyproject.toml           # Project metadata and dependencies
 ├── Dockerfile               # Container image definition
 └── docker-compose.yml       # Multi-container orchestration

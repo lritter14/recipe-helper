@@ -44,7 +44,6 @@ recipe-helper/
 │   │   └── test_models.py
 │   └── integration/             # Integration tests
 │       └── test_api.py
-├── config/                      # Configuration files (deprecated - use env vars)
 ├── scripts/                     # Utility scripts
 │   ├── setup-dev.sh            # Development setup
 │   └── check-llm.sh             # LLM server connectivity check

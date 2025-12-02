@@ -31,7 +31,6 @@ The script will:
 - Create a Python virtual environment
 - Install all dependencies
 - Set up pre-commit hooks
-- Create configuration files from templates
 
 ### 2. Configure Environment Variables (1 minute)
 
