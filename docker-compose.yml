@@ -1,0 +1,69 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: recipe-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11435:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    healthcheck:
+      # Simple check: verify Ollama is listening on port 11434
+      # Using nc (netcat) which is commonly available, or fallback to checking process
+      test: ["CMD-SHELL", "nc -z localhost 11434 || ps aux | grep -q '[o]llama serve'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - recipe-network
+    restart: unless-stopped
+
+  recipe-api:
+    image: recipe-ingest:local
+    # Alternative: use published image from GitHub Container Registry
+    # image: ghcr.io/YOUR_USERNAME/recipe-helper:latest
+    container_name: recipe-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8100:8100"
+    environment:
+      # LLM Configuration - uses service name for internal communication
+      - RECIPE_INGEST_LLM_ENDPOINT=http://ollama:11434
+      # Alternative: use LLM_BASE_URL
+      # - LLM_BASE_URL=http://ollama:11434
+      - RECIPE_INGEST_LLM_MODEL=llama3.1:8b
+      - RECIPE_INGEST_LLM_TIMEOUT=120
+      # Vault Configuration
+      - RECIPE_INGEST_VAULT_PATH=/vault
+      - RECIPE_INGEST_VAULT_RECIPES_DIR=personal/recipes
+      # Logging
+      - RECIPE_INGEST_LOG_LEVEL=INFO
+    volumes:
+      # Mount your Obsidian vault here
+      # Update the path to your actual vault location
+      - ${VAULT_PATH:-./vault}:/vault
+    depends_on:
+      ollama:
+        condition: service_started
+    networks:
+      - recipe-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/api/v1/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  recipe-network:
+    driver: bridge
+
+volumes:
+  ollama_data:
+    driver: local
+
