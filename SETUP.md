@@ -15,7 +15,7 @@ A Python-based system for automated recipe extraction and formatting from multip
 - **Testing**: pytest with coverage
 - **Linting**: Ruff, Black, mypy
 - **Containerization**: Docker with Tailscale sidecar
-- **Dependency Management**: pyproject.toml (PEP 621)
+- **Dependency Management**: requirements.txt
 
 ## Project Structure
 
@@ -46,7 +46,8 @@ recipe-helper/
 │       └── test_api.py
 ├── scripts/                     # Utility scripts
 │   ├── setup-dev.sh            # Development setup
-├── pyproject.toml              # Project metadata and dependencies
+├── requirements.txt            # Runtime dependencies
+├── requirements-dev.txt        # Development dependencies
 ├── Dockerfile                   # Container image definition
 ├── docker-compose.yml          # Multi-container orchestration
 ├── Makefile                    # Common development tasks
@@ -85,14 +86,10 @@ recipe-helper/
 
 ## Configuration
 
-### pyproject.toml
+### Dependencies
 
-Main configuration file containing:
-
-- **Dependencies**: Core runtime dependencies
-- **Dev dependencies**: Testing, linting, type checking tools
-- **Tool configuration**: Ruff, mypy, pytest, black, coverage settings
-- **Package metadata**: Name, version, authors, entry points
+- **requirements.txt**: Core runtime dependencies
+- **requirements-dev.txt**: Development dependencies (testing, linting, type checking tools)
 
 ### Linting and Type Checking
 
@@ -114,7 +111,7 @@ Test configuration:
 
 - Source: `src/`
 - Tests: `tests/unit/` and `tests/integration/`
-- Coverage target: Configured in `pyproject.toml`
+- Coverage target: Configured in `.coveragerc`
 
 ## Docker Setup
 
@@ -157,7 +154,7 @@ Configuration:
 # Or manual setup
 python3 -m venv venv
 source venv/bin/activate
-pip install -e ".[dev]"
+pip install -r requirements.txt -r requirements-dev.txt
 pre-commit install
 ```
 
@@ -190,7 +187,7 @@ make clean       # Remove generated files
 ### ✅ Completed
 
 - [x] Project structure and organization
-- [x] Dependency management (pyproject.toml)
+- [x] Dependency management (requirements.txt)
 - [x] Data models (Pydantic)
 - [x] Core stub modules (extractor, formatter, writer)
 - [x] Parser stubs (text, Instagram)
@@ -256,7 +253,7 @@ Milestones:
 
 - User documentation: `README.md`
 - Developer guide: `CONTRIBUTING.md`
-- Dependencies: `pyproject.toml`
+- Dependencies: `requirements.txt` and `requirements-dev.txt`
 
 ---
 

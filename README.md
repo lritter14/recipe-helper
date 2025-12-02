@@ -29,7 +29,7 @@ Clone the repository and install dependencies:
 ```bash
 git clone <repository-url>
 cd recipe-helper
-pip install -e ".[dev]"
+pip install -r requirements.txt -r requirements-dev.txt
 ```
 
 ### Usage
@@ -93,7 +93,7 @@ docker-compose up -d
 Install with development dependencies:
 
 ```bash
-pip install -e ".[dev]"
+pip install -r requirements.txt -r requirements-dev.txt
 ```
 
 Install pre-commit hooks:
@@ -188,7 +188,8 @@ recipe-helper/
 ├── tests/                   # Test suite
 │   ├── unit/                # Unit tests
 │   └── integration/         # Integration tests
-├── pyproject.toml           # Project metadata and dependencies
+├── requirements.txt         # Runtime dependencies
+├── requirements-dev.txt     # Development dependencies
 ├── Dockerfile               # Container image definition
 └── docker-compose.yml       # Multi-container orchestration
 ```

@@ -7,10 +7,10 @@ help:  ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 
 install:  ## Install package
-	pip install -e .
+	pip install -r requirements.txt
 
 install-dev:  ## Install package with development dependencies
-	pip install -e ".[dev]"
+	pip install -r requirements.txt -r requirements-dev.txt
 
 git-init:  ## Initialize git repository (if not already initialized)
 	@if [ ! -d .git ]; then \

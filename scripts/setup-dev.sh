@@ -32,7 +32,7 @@ pip install --quiet --upgrade pip
 
 # Install package with dev dependencies
 echo "📥 Installing package with development dependencies..."
-pip install --quiet -e ".[dev]"
+pip install --quiet -r requirements.txt -r requirements-dev.txt
 
 # Note: Configuration is now done via environment variables
 # See README.md for required environment variables

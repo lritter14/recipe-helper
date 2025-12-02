@@ -32,7 +32,7 @@ Install development dependencies:
 ```bash
 make install-dev
 # or
-pip install -e ".[dev]"
+pip install -r requirements.txt -r requirements-dev.txt
 pre-commit install
 ```
 
@@ -265,19 +265,18 @@ docker-compose exec recipe-api /bin/bash
 
 ### Import Errors
 
-If you get import errors, ensure the package is installed in editable mode:
+If you get import errors, ensure the dependencies are installed:
 
 ```bash
-pip install -e .
+pip install -r requirements.txt
 ```
 
 ### Type Checking Errors
 
-Some libraries may not have type stubs. Add them to the `mypy` overrides in `pyproject.toml`:
+Some libraries may not have type stubs. Add them to the `mypy.ini` file:
 
-```toml
-[[tool.mypy.overrides]]
-module = ["my_library.*"]
+```ini
+[mypy-my_library.*]
 ignore_missing_imports = true
 ```
 
