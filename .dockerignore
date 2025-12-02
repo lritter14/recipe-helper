@@ -4,9 +4,11 @@
 
 # Python cache / build artifacts
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 *.egg-info/
+**/*.egg-info/
 .build/
 dist/
 htmlcov/
@@ -57,6 +59,13 @@ docker-compose.*.yml
 .dockerignore
 .editorconfig
 .pre-commit-config.yaml
+requirements-dev.txt
+mypy.ini
+pytest.ini
+ruff.toml
+setup.cfg
+.coveragerc
+.python-version
 
 # Development documentation
 CONTRIBUTING.md
